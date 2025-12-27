@@ -5,6 +5,8 @@ declare module "bun" {
   interface Env {
     /** The URL of the Daemon Server WebSocket. */
     readonly DAEMON_SERVER_WS_URL: string | undefined
+    /** Whether to enable debug mode. */
+    readonly DEBUG: boolean
   }
 }
 
@@ -13,6 +15,17 @@ const EnvSchema = z.object({
     protocol: /wss?/,
     error: "DAEMON_SERVER_WS_URL must be a valid WebSocket URL.",
   }),
+  DEBUG: z
+    .string()
+    .optional()
+    .transform((value) => {
+      return isNil(value)
+        ? process.env.NODE_ENV !== "production"
+        : value.toLowerCase() === "true"
+    })
+    .meta({
+      description: `Whether to enable debug mode. This will be enabled automatically when NODE_ENV is not "production". The value must be "true" (case-insensitive) to enable debug mode, otherwise it will be treated as false.`,
+    }),
 })
 
 let env: z.infer<typeof EnvSchema> | undefined

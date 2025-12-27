@@ -1,1 +1,3 @@
-export * from "./plugin"
+import "dotenv/config"
+
+export { createPlugin } from "./plugin"
