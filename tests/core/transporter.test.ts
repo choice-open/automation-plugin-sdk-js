@@ -55,11 +55,7 @@ const mockSocketLog = mock(() => {})
 let storedOnOpenHandler: (() => void) | undefined
 let storedOnCloseHandler: ((event: unknown) => void) | undefined
 let storedOnErrorHandler:
-  | ((
-      error: unknown,
-      transport?: unknown,
-      establishedConnections?: unknown,
-    ) => void)
+  | ((error: unknown, transport?: unknown, establishedConnections?: unknown) => void)
   | undefined
 let storedOnMessageHandler: ((message: unknown) => void) | undefined
 
@@ -70,13 +66,7 @@ const mockSocketOnClose = mock((handler: (event: unknown) => void) => {
   storedOnCloseHandler = handler
 })
 const mockSocketOnError = mock(
-  (
-    handler: (
-      error: unknown,
-      transport?: unknown,
-      establishedConnections?: unknown,
-    ) => void,
-  ) => {
+  (handler: (error: unknown, transport?: unknown, establishedConnections?: unknown) => void) => {
     storedOnErrorHandler = handler
   },
 )
@@ -114,8 +104,7 @@ describe("transporter", () => {
   beforeEach(() => {
     // Reset environment
     Object.assign(process.env, originalEnv)
-    ;(process.env as Record<string, string>).DAEMON_SERVER_WS_URL =
-      "ws://localhost:4000/socket"
+    ;(process.env as Record<string, string>).DAEMON_SERVER_WS_URL = "ws://localhost:4000/socket"
     ;(process.env as Record<string, string>).DEBUG = "false"
 
     // Reset receive callbacks

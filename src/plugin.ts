@@ -1,17 +1,8 @@
 import chalk from "chalk"
 import { logger } from "./core/logger"
-import {
-  createProvider,
-  type Provider,
-  type ProviderManager,
-} from "./core/provider"
+import { createProvider, type Provider, type ProviderManager } from "./core/provider"
 import { createRegistry } from "./core/registry"
 import { createTransporter, type TransporterOptions } from "./core/transporter"
-
-export interface I18nText {
-  en_US: string
-  [key: string]: string | undefined
-}
 
 interface PluginOptions<Locales> {
   /**
@@ -32,9 +23,7 @@ const log = logger.child({ name: "Phoenix" })
  * @param options - The options for configuring the plugin instance.
  * @returns An object containing methods to define providers and run the plugin process.
  */
-export function createPlugin<Locales extends string[]>(
-  options: PluginOptions<Locales>,
-) {
+export function createPlugin<Locales extends string[]>(options: PluginOptions<Locales>) {
   const registry = createRegistry()
   const transporter = createTransporter(options.transporterOptions)
 

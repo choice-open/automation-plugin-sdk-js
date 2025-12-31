@@ -1,23 +1,37 @@
-# tsdown-starter
-
-A starter for creating a TypeScript package.
+# Choiceform Automation Plugin JavaScript/TypeScript SDK
 
 ## Development
 
 - Install dependencies:
 
 ```bash
-npm install
+bun install
+```
+
+- Watch and rebuild in development
+
+```bash
+bun run dev
+```
+
+- Linting and formatting
+
+```bash
+bun run check
 ```
 
 - Run the unit tests:
 
 ```bash
-npm run test
+bun run test
 ```
 
 - Build the library:
 
 ```bash
-npm run build
+bun run build
 ```
+
+## Linting and formatting
+
+This project uses Biome to provide unified linting and formatting, please install VS Code extension if you use VS Code to having the best DX support.

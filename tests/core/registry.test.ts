@@ -72,9 +72,7 @@ describe("registry", () => {
       }
 
       registry.registerProvider(provider)
-      expect(() =>
-        registry.registerFeature("tool", feature, "test-provider"),
-      ).not.toThrow()
+      expect(() => registry.registerFeature("tool", feature, "test-provider")).not.toThrow()
     })
 
     test("should throw error when provider is not registered", () => {
@@ -82,9 +80,9 @@ describe("registry", () => {
         name: { en_US: "test-tool" },
       }
 
-      expect(() =>
-        registry.registerFeature("tool", feature, "non-existent-provider"),
-      ).toThrow('Provider "non-existent-provider" not registered.')
+      expect(() => registry.registerFeature("tool", feature, "non-existent-provider")).toThrow(
+        'Provider "non-existent-provider" not registered.',
+      )
     })
 
     test("should register multiple features for the same provider", () => {
@@ -123,9 +121,7 @@ describe("registry", () => {
       registry.registerFeature("tool", feature2, "test-provider")
 
       // Should resolve to the last registered feature
-      expect(registry.resolve("tool", "test-provider", "test-tool")).toBe(
-        feature2,
-      )
+      expect(registry.resolve("tool", "test-provider", "test-tool")).toBe(feature2)
     })
 
     test("should use en_US key for feature name", () => {
@@ -162,9 +158,9 @@ describe("registry", () => {
     })
 
     test("should throw error when provider is not registered", () => {
-      expect(() =>
-        registry.resolve("tool", "non-existent-provider", "test-tool"),
-      ).toThrow('Provider "non-existent-provider" not registered.')
+      expect(() => registry.resolve("tool", "non-existent-provider", "test-tool")).toThrow(
+        'Provider "non-existent-provider" not registered.',
+      )
     })
 
     test("should throw error when feature is not registered", () => {
@@ -174,9 +170,9 @@ describe("registry", () => {
 
       registry.registerProvider(provider)
 
-      expect(() =>
-        registry.resolve("tool", "test-provider", "non-existent-tool"),
-      ).toThrow('Feature "non-existent-tool" not registered.')
+      expect(() => registry.resolve("tool", "test-provider", "non-existent-tool")).toThrow(
+        'Feature "non-existent-tool" not registered.',
+      )
     })
 
     test("should resolve features from different providers", () => {
@@ -198,12 +194,8 @@ describe("registry", () => {
       registry.registerFeature("tool", feature1, "provider-1")
       registry.registerFeature("tool", feature2, "provider-2")
 
-      expect(registry.resolve("tool", "provider-1", "same-tool-name")).toBe(
-        feature1,
-      )
-      expect(registry.resolve("tool", "provider-2", "same-tool-name")).toBe(
-        feature2,
-      )
+      expect(registry.resolve("tool", "provider-1", "same-tool-name")).toBe(feature1)
+      expect(registry.resolve("tool", "provider-2", "same-tool-name")).toBe(feature2)
     })
   })
 

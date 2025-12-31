@@ -23,10 +23,7 @@ export interface ProviderManager {
   addTool: (tool: Feature) => void
 }
 
-export function createProvider(
-  provider: Provider,
-  registry: Registry,
-): ProviderManager {
+export function createProvider(provider: Provider, registry: Registry): ProviderManager {
   registry.registerProvider(provider)
 
   return {

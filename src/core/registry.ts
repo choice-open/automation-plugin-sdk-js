@@ -32,11 +32,7 @@ export interface Registry {
    * @param providerName - The name of the provider to register the feature for.
    * @throws Error if the provider is not registered.
    */
-  registerFeature: (
-    type: FeatureType,
-    feature: Feature,
-    providerName: I18nText["en_US"],
-  ) => void
+  registerFeature: (type: FeatureType, feature: Feature, providerName: I18nText["en_US"]) => void
 
   /**
    * Resolves a feature from the registry by its type, provider name, and feature name.
@@ -74,11 +70,7 @@ export function createRegistry(): Registry {
       store.provider.set(providerName, { name: provider.name, tool: new Map() })
     },
 
-    registerFeature: (
-      type: FeatureType,
-      feature: Feature,
-      providerName: I18nText["en_US"],
-    ) => {
+    registerFeature: (type: FeatureType, feature: Feature, providerName: I18nText["en_US"]) => {
       const provider = store.provider.get(providerName)
       assert(provider, `Provider "${providerName}" not registered.`)
 

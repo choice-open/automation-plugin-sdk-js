@@ -30,9 +30,7 @@ describe("getDefaultText", () => {
     const text: I18nText = {
       en_US: "Hello",
     }
-    expect(() => getDefaultText(text, "fr_FR")).toThrow(
-      'I18n text requires at least "en_US" key.',
-    )
+    expect(() => getDefaultText(text, "fr_FR")).toThrow('I18n text requires at least "en_US" key.')
   })
 
   test("should throw error when en_US is missing", () => {
@@ -40,9 +38,7 @@ describe("getDefaultText", () => {
       zh_CN: "你好",
     }
     // @ts-expect-error - Test case
-    expect(() => getDefaultText(text)).toThrow(
-      'I18n text requires at least "en_US" key.',
-    )
+    expect(() => getDefaultText(text)).toThrow('I18n text requires at least "en_US" key.')
   })
 
   test("should handle multiple locales", () => {

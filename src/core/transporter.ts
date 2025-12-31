@@ -61,13 +61,13 @@ export function createTransporter(options: TransporterOptions = {}) {
       channel
         .join()
         .receive("ok", (response) => {
-          socket.log("channel:joined", `Joined successfully`, response)
+          socket.log("channel:joined", `Joined mirror:lobby successfully`, response)
         })
         .receive("error", (response) => {
-          socket.log("channel:error", `Failed to join`, response)
+          socket.log("channel:error", `Failed to join mirror:lobby`, response)
         })
         .receive("timeout", (response) => {
-          socket.log("channel:timeout", `Timeout while joining`, response)
+          socket.log("channel:timeout", `Timeout while joining mirror:lobby`, response)
         })
 
       return {

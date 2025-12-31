@@ -19,19 +19,14 @@ const EnvSchema = z.object({
     .string()
     .optional()
     .transform((value) => {
-      return isNil(value)
-        ? process.env.NODE_ENV !== "production"
-        : value.toLowerCase() === "true"
+      return isNil(value) ? process.env.NODE_ENV !== "production" : value.toLowerCase() === "true"
     })
     .meta({
       description: `Whether to enable debug mode. This will be enabled automatically when NODE_ENV is not "production". The value must be "true" (case-insensitive) to enable debug mode, otherwise it will be treated as false.`,
     }),
-  NODE_ENV: z
-    .enum(["development", "production", "test"])
-    .default("development")
-    .meta({
-      description: `The environment mode. This will be "development" by default.`,
-    }),
+  NODE_ENV: z.enum(["development", "production", "test"]).default("development").meta({
+    description: `The environment mode. This will be "development" by default.`,
+  }),
 })
 
 let env: z.infer<typeof EnvSchema> | undefined
