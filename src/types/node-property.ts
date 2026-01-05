@@ -108,6 +108,8 @@ export interface FilterOperators<TValue extends JsonValue = JsonValue> {
   $size?: TValue extends Array<unknown> ? number : never
 }
 
+type ExpressionValue = string
+
 export interface NodePropertyBase<TName extends string = string> {
   /**
    * Unique property name within the same level
@@ -171,9 +173,9 @@ export interface NodePropertyString<TName extends string = string> extends NodeP
 
 export interface NodePropertyNumber<TName extends string = string> extends NodePropertyBase<TName> {
   type: "number" | "integer"
-  constant?: number
-  default?: number
-  enum?: Array<number>
+  constant?: number | ExpressionValue
+  default?: number | ExpressionValue
+  enum?: Array<number | ExpressionValue>
   /**
    * Maximum value (inclusive)
    */
@@ -188,9 +190,9 @@ export interface NodePropertyNumber<TName extends string = string> extends NodeP
 export interface NodePropertyBoolean<TName extends string = string>
   extends NodePropertyBase<TName> {
   type: "boolean"
-  constant?: boolean
-  default?: boolean
-  enum?: Array<boolean>
+  constant?: boolean | ExpressionValue
+  default?: boolean | ExpressionValue
+  enum?: Array<boolean | ExpressionValue>
   ui?: NodePropertyUIBoolean
 }
 
@@ -203,9 +205,9 @@ export interface NodePropertyObject<
    * Child properties of the object
    */
   properties: Array<NodeProperty<keyof TValue extends string ? keyof TValue : never>>
-  constant?: TValue
-  default?: TValue
-  enum?: Array<TValue>
+  constant?: TValue | ExpressionValue
+  default?: TValue | ExpressionValue
+  enum?: Array<TValue | ExpressionValue>
   ui?: NodePropertyUIObject
 }
 
@@ -239,9 +241,9 @@ export type ArrayDiscriminatedItems<
 
 export interface NodePropertyArray<TName extends string = string> extends NodePropertyBase<TName> {
   type: "array"
-  constant?: Array<JsonValue>
-  default?: Array<JsonValue>
-  enum?: Array<Array<JsonValue>>
+  constant?: Array<JsonValue> | ExpressionValue
+  default?: Array<JsonValue> | ExpressionValue
+  enum?: Array<Array<JsonValue> | ExpressionValue>
   /**
    * Item schema: uniform type or discriminated union
    */
