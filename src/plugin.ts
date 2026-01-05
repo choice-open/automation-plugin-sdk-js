@@ -1,19 +1,8 @@
 import chalk from "chalk"
 import { logger } from "./core/logger"
-import { createProvider, type Provider, type ProviderManager } from "./core/provider"
 import { createRegistry } from "./core/registry"
-import { createTransporter, type TransporterOptions } from "./core/transporter"
-
-interface PluginOptions<Locales> {
-  /**
-   * The locales to support. Defaults to ["en_US"] and "en_US" is required.
-   */
-  locales: Locales
-  /**
-   * The options for the transporter.
-   */
-  transporterOptions?: TransporterOptions
-}
+import { createTransporter } from "./core/transporter"
+import type { CredentialDefinition, PluginDefinition, ToolDefinition } from "./types"
 
 const log = logger.child({ name: "Phoenix" })
 
@@ -23,19 +12,29 @@ const log = logger.child({ name: "Phoenix" })
  * @param options - The options for configuring the plugin instance.
  * @returns An object containing methods to define providers and run the plugin process.
  */
-export function createPlugin<Locales extends string[]>(options: PluginOptions<Locales>) {
+export function createPlugin<Locales extends string[]>(options: PluginDefinition<Locales>) {
   const registry = createRegistry()
   const transporter = createTransporter(options.transporterOptions)
 
   return {
     /**
-     * Defines and registers a new provider within the plugin registry.
+     * Adds a new credential definition in the registry.
      *
-     * @param provider - The provider to define.
-     * @returns A ProviderManager object, allowing methods to add features to the provider.
+     * @param credential - The credential to add.
+     * @throws Error if the credential is not registered.
      */
-    defineProvider: (provider: Provider): ProviderManager => {
-      return createProvider(provider, registry)
+    addCredential: (credential: CredentialDefinition) => {
+      registry.register("credential", credential)
+    },
+
+    /**
+     * Adds a new tool definition in the registry.
+     *
+     * @param tool - The tool to add.
+     * @throws Error if the tool is not registered.
+     */
+    addTool: (tool: ToolDefinition) => {
+      registry.register("tool", tool)
     },
 
     /**
@@ -50,7 +49,7 @@ export function createPlugin<Locales extends string[]>(options: PluginOptions<Lo
       channel.on("shout", async (message) => {
         if (message.providerName && message.featureName) {
           const { providerName, featureName } = message
-          const feature = registry.resolve("tool", providerName, featureName)
+          const feature = registry.resolve("tool", featureName)
           const response = await feature.invoke.apply(null, message.args)
 
           const data = chalk.blueBright(JSON.stringify(response, null, 2))

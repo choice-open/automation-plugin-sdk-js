@@ -1,6 +1,6 @@
 import { compact } from "es-toolkit"
 import type { IsEqual, JsonValue } from "type-fest"
-import z from "zod"
+import { z } from "zod"
 import type {
   ArrayDiscriminatedItems,
   DisplayCondition,
@@ -9,20 +9,22 @@ import type {
   NodePropertyArray,
   NodePropertyBase,
   NodePropertyBoolean,
+  NodePropertyCredentialId,
   NodePropertyNumber,
   NodePropertyObject,
   NodePropertyString,
-} from "../node-property.type"
+} from "../types"
+import { I18nEntrySchema } from "./denifition"
 import {
   NodePropertyUIArraySchema,
   NodePropertyUIBooleanSchema,
   NodePropertyUICommonPropsSchema,
+  NodePropertyUICredentialIdSchema,
   NodePropertyUIDiscriminatorUISchema,
   NodePropertyUINumberSchema,
   NodePropertyUIObjectSchema,
   NodePropertyUIStringSchema,
-} from "./node-property-ui.schema"
-import { I18nEntrySchema } from "./schema"
+} from "./node-property-ui"
 
 const JsonPrimitiveSchema = z.union([z.string(), z.number(), z.boolean(), z.null()])
 const JsonValueSchema: z.ZodType<JsonValue> = z.lazy(() =>
@@ -210,7 +212,7 @@ const ArrayDiscriminatedItemsSchema = z
     },
   ) as z.ZodType<ArrayDiscriminatedItems> // use type assertion because of generic type plus recursive structure
 
-const itemsSchema: z.ZodType<NodeProperty | ArrayDiscriminatedItems> = z.lazy(() =>
+const ItemsSchema: z.ZodType<NodeProperty | ArrayDiscriminatedItems> = z.lazy(() =>
   z.union([NodePropertySchema, ArrayDiscriminatedItemsSchema]),
 )
 
@@ -219,7 +221,7 @@ const NodePropertyArraySchema = NodePropertyBaseSchema.extend({
   constant: z.array(JsonValueSchema).optional(),
   default: z.array(JsonValueSchema).optional(),
   enum: z.array(z.array(JsonValueSchema)).optional(),
-  items: itemsSchema,
+  items: ItemsSchema,
   max_items: z.number().optional(),
   min_items: z.number().optional(),
   ui: NodePropertyUIArraySchema.optional(),
@@ -228,12 +230,23 @@ const NodePropertyArraySchema = NodePropertyBaseSchema.extend({
   const _: IsEqual<z.infer<typeof NodePropertyArraySchema>, NodePropertyArray> = true
 }
 
+const NodePropertyCredentialIdSchema = NodePropertyBaseSchema.extend({
+  type: z.literal("credential_id"),
+  credential_name: z.string().min(1, "credential_name cannot be empty"),
+  ui: NodePropertyUICredentialIdSchema.optional(),
+})
+
+{
+  const _: IsEqual<z.infer<typeof NodePropertyCredentialIdSchema>, NodePropertyCredentialId<string>> = true
+}
+
 export const NodePropertySchema = z.union([
   NodePropertyStringSchema,
   NodePropertyBooleanSchema,
   NodePropertyNumberSchema,
   NodePropertyArraySchema,
   NodePropertyObjectSchema,
+  NodePropertyCredentialIdSchema,
 ])
 {
   const _: IsEqual<z.infer<typeof NodePropertySchema>, NodeProperty> = true

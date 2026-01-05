@@ -1,10 +1,11 @@
 import type { IsEqual } from "type-fest"
-import z from "zod"
+import { z } from "zod"
 import type {
   NodePropertyUIArray,
   NodePropertyUIArraySectionProps,
   NodePropertyUIBoolean,
   NodePropertyUICollapsiblePanelProps,
+  NodePropertyUICredentialId,
   NodePropertyUIInputProps,
   NodePropertyUIKeyValueEditorProps,
   NodePropertyUINumber,
@@ -15,8 +16,8 @@ import type {
   NodePropertyUISingleSelectProps,
   NodePropertyUIString,
   NodePropertyUISwitchProps,
-} from "../node-property-ui.type"
-import { I18nEntrySchema } from "./schema"
+} from "../types"
+import { I18nEntrySchema } from "./denifition"
 
 // Common UI properties schema
 export const NodePropertyUICommonPropsSchema = z.object({
@@ -308,6 +309,12 @@ export const NodePropertyUIObjectSchema = z.discriminatedUnion("component", [
   const _: IsEqual<z.infer<typeof NodePropertyUIObjectSchema>, NodePropertyUIObject> = true
 }
 
+export const NodePropertyUICredentialIdSchema = z.discriminatedUnion("component", [
+  NodePropertyUICredentialSelectPropsSchema,
+])
+{
+  const _: IsEqual<z.infer<typeof NodePropertyUICredentialIdSchema>, NodePropertyUICredentialId> = true
+}
 export const NodePropertyUIDiscriminatorUISchema = z.discriminatedUnion("component", [
   NodePropertyUISwitchPropsSchema,
   NodePropertyUISingleSelectPropsSchema,

@@ -1,19 +1,49 @@
-import type { I18nText } from "./types"
+import type { I18nText } from "./denifition"
 
 export interface NodePropertyUIOption {
+  /**
+   * The icon of the option
+   */
   icon?: string
+  /**
+   * The label of the option
+   */
   label: I18nText
+  /**
+   * The value of the option
+   */
   value: string | number | boolean
 }
 
 /** 通用 UI 属性 */
 export interface NodePropertyUICommonProps {
+  /**
+   * Whether the component is disabled
+   */
   disabled?: boolean
+  /**
+   * The hint of the component
+   */
   hint?: I18nText
+  /**
+   * The placeholder of the component
+   */
   placeholder?: I18nText
+  /**
+   * Whether the component is readonly
+   */
   readonly?: boolean
+  /**
+   * Whether the component is sensitive
+   */
   sensitive?: boolean
+  /**
+   * Whether the component supports expression
+   */
   support_expression?: boolean
+  /**
+   * The width of the component
+   */
   width?: "small" | "medium" | "full"
 }
 
@@ -222,3 +252,5 @@ export type NodePropertyUIObject =
   | NodePropertyUIContainer
   | NodePropertyUIMisc
   | NodePropertyUICodeEditorProps
+
+export type NodePropertyUICredentialId = NodePropertyUICredentialSelectProps

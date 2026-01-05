@@ -1,16 +1,17 @@
 import type { JsonObject, JsonValue } from "type-fest"
+import type { I18nText } from "./denifition"
 import type {
   NodePropertyUIArray,
   NodePropertyUIBoolean,
   NodePropertyUICommonProps,
+  NodePropertyUICredentialId,
   NodePropertyUINumber,
   NodePropertyUIObject,
   NodePropertyUIRadioGroupProps,
   NodePropertyUISingleSelectProps,
   NodePropertyUIString,
   NodePropertyUISwitchProps,
-} from "./node-property-ui.type"
-import type { I18nText } from "./types"
+} from "./node-property-ui"
 
 /**
  * Condition for controlling property visibility based on sibling property values
@@ -258,9 +259,22 @@ export interface NodePropertyArray<TName extends string = string> extends NodePr
   ui?: NodePropertyUIArray
 }
 
+export interface NodePropertyCredentialId<TName extends string = string>
+  extends NodePropertyBase<TName> {
+  type: "credential_id"
+  /**
+   * This field is used to map to the credential name defined in the plugin.
+   *
+   * **Note:** The name must match exactly, otherwise the system will be unable to find the corresponding credential.
+   */
+  credential_name: string
+  ui?: NodePropertyUICredentialId // the ui component for selecting the credential
+}
+
 export type NodeProperty<TName extends string = string, TValue extends JsonValue = JsonValue> =
   | NodePropertyArray<TName>
   | NodePropertyObject<TName, TValue extends JsonObject ? TValue : JsonObject>
   | NodePropertyString<TName>
   | NodePropertyBoolean<TName>
   | NodePropertyNumber<TName>
+  | NodePropertyCredentialId<TName>

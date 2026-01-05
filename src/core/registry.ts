@@ -1,105 +1,108 @@
-import { assert } from "es-toolkit/util"
-import type { I18nText } from "../plugin"
-import { getDefaultText } from "../utils/get-default-text"
-import { serializeProvider } from "../utils/serialize-provider"
-import type { Feature, Provider } from "./provider"
+import { assert } from "es-toolkit"
+import type { JsonValue } from "type-fest"
+import type {
+  CredentialDefinition,
+  DataSourceDefinition,
+  Feature,
+  ModelDefinition,
+  PluginDefinition,
+  ToolDefinition,
+} from "../types"
+import { serializeFeature } from "../utils/serialize-feature"
 
 interface RegistryStore {
-  provider: Map<I18nText["en_US"], ProviderStore>
+  plugin: PluginDefinition | null
+  credential: Map<CredentialDefinition["name"], CredentialDefinition>
+  data_source: Map<DataSourceDefinition["name"], DataSourceDefinition>
+  model: Map<ModelDefinition["name"], ModelDefinition>
+  tool: Map<ToolDefinition["name"], ToolDefinition>
 }
 
-export interface ProviderStore {
-  name: I18nText
-  tool: Map<I18nText["en_US"], Feature>
-}
-
-export type FeatureType = keyof Pick<ProviderStore, "tool">
+export type FeatureType = keyof Pick<RegistryStore, "credential" | "data_source" | "model" | "tool">
 
 export interface Registry {
   /**
-   * Registers a new provider in the registry.
+   * Registers a feature (credential, data source, model, or tool) into the registry.
    *
-   * @param provider - The provider to register.
-   * @throws Error if the provider with the same name (en_US) is already registered.
+   * @param type - The type of the feature to register ("credential", "data_source", "model", or "tool").
+   * @param feature - The feature definition to register.
    */
-  registerProvider: (provider: Provider) => void
+  register: {
+    (type: "credential", feature: CredentialDefinition): void
+    (type: "data_source", feature: DataSourceDefinition): void
+    (type: "model", feature: ModelDefinition): void
+    (type: "tool", feature: ToolDefinition): void
+  }
 
   /**
-   * Registers a new feature for a specific provider in the registry.
+   * Resolves and retrieves a registered feature (credential, data source, model, or tool) by its type and name.
    *
-   * @param type - The type of feature to register.
-   * @param feature - The feature to register.
-   * @param providerName - The name of the provider to register the feature for.
-   * @throws Error if the provider is not registered.
-   */
-  registerFeature: (type: FeatureType, feature: Feature, providerName: I18nText["en_US"]) => void
-
-  /**
-   * Resolves a feature from the registry by its type, provider name, and feature name.
-   *
-   * @param type - The type of feature to resolve.
-   * @param providerName - The name of the provider to resolve the feature for.
+   * @param type - The type of the feature ("credential", "data_source", "model", or "tool").
    * @param featureName - The name of the feature to resolve.
-   * @returns The resolved feature.
-   * @throws Error if the provider is not registered or the feature is not registered.
+   * @returns The resolved feature definition.
+   * @throws If the feature is not registered.
    */
-  resolve: (
-    type: FeatureType,
-    providerName: I18nText["en_US"],
-    featureName: I18nText["en_US"],
-  ) => Feature
+  resolve: {
+    (type: "credential", featureName: string): CredentialDefinition
+    (type: "data_source", featureName: string): DataSourceDefinition
+    (type: "model", featureName: string): ModelDefinition
+    (type: "tool", featureName: string): ToolDefinition
+  }
 
   /**
    * Serializes the registry into a JSON-like object.
    *
    * @returns The serialized registry.
    */
-  // biome-ignore lint/suspicious/noExplicitAny: Type is not critical for serialized data
-  serialize: () => Record<string, any>
+  serialize: () => {
+    plugin: PluginDefinition
+    credential: Array<Record<string, JsonValue>>
+    data_source: Array<Record<string, JsonValue>>
+    model: Array<Record<string, JsonValue>>
+    tool: Array<Record<string, JsonValue>>
+  }
 }
 
 export function createRegistry(): Registry {
-  const store: RegistryStore = { provider: new Map() }
+  const store: RegistryStore = {
+    plugin: null,
+    credential: new Map(),
+    data_source: new Map(),
+    model: new Map(),
+    tool: new Map(),
+  }
+  
+  function register(type: "credential", feature: CredentialDefinition): void
+  function register(type: "data_source", feature: DataSourceDefinition): void
+  function register(type: "model", feature: ModelDefinition): void
+  function register(type: "tool", feature: ToolDefinition): void
+  // biome-ignore lint/suspicious/noExplicitAny: any is used to avoid type errors
+  function register(type: FeatureType, feature: any): void {
+    store[type].set(feature.name, feature)
+  }
+  
+  function resolve(type: "credential", featureName: string): CredentialDefinition
+  function resolve(type: "data_source", featureName: string): DataSourceDefinition
+  function resolve(type: "model", featureName: string): ModelDefinition
+  function resolve(type: "tool", featureName: string): ToolDefinition
+  function resolve(type: FeatureType, featureName: string): Feature {
+    const feature = store[type].get(featureName)
+    assert(feature, `Feature "${featureName}" not registered`)
+    return feature
+  }
 
   return {
-    registerProvider: (provider: Provider) => {
-      const providerName = getDefaultText(provider.name)
-      const unregistered = !store.provider.has(providerName)
-      assert(unregistered, `Provider "${providerName}" already registered.`)
-
-      store.provider.set(providerName, { name: provider.name, tool: new Map() })
-    },
-
-    registerFeature: (type: FeatureType, feature: Feature, providerName: I18nText["en_US"]) => {
-      const provider = store.provider.get(providerName)
-      assert(provider, `Provider "${providerName}" not registered.`)
-
-      provider[type].set(getDefaultText(feature.name), feature)
-    },
-
-    resolve: (
-      type: FeatureType,
-      providerName: I18nText["en_US"],
-      featureName: I18nText["en_US"],
-    ) => {
-      const provider = store.provider.get(providerName)
-      assert(provider, `Provider "${providerName}" not registered.`)
-
-      const feature = provider[type].get(featureName)
-      assert(feature, `Feature "${featureName}" not registered.`)
-
-      return feature
-    },
-
+    register,
+    resolve,
     serialize: () => {
-      // biome-ignore lint/suspicious/noExplicitAny: Type is not critical for serialized data
-      return Array.from(store.provider.values()).reduce<Record<string, any>>(
-        (finale, provider) =>
-          Object.assign(finale, {
-            [provider.name.en_US]: serializeProvider(provider),
-          }),
-        {},
-      )
+      assert(store.plugin, "Plugin is not registered")
+      return {
+        plugin: store.plugin,
+        credential: Array.from(store.credential.values()).map(serializeFeature),
+        data_source: Array.from(store.data_source.values()).map(serializeFeature),
+        model: Array.from(store.model.values()).map(serializeFeature),
+        tool: Array.from(store.tool.values()).map(serializeFeature),
+      }
     },
   }
 }

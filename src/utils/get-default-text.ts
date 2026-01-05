@@ -1,5 +1,5 @@
 import { assert } from "es-toolkit/util"
-import type { I18nText } from "../plugin"
+import type { I18nText } from "../types"
 
 /**
  * Returns the text for the given locale from an I18nText object.

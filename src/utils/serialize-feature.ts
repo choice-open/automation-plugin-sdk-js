@@ -1,5 +1,6 @@
 import { isFunction } from "es-toolkit/predicate"
-import type { Feature } from "../core/provider"
+import type { JsonValue } from "type-fest"
+import type { Feature } from "../types"
 
 /**
  * Serializes a Feature object by removing any function-type properties.
@@ -8,8 +9,7 @@ import type { Feature } from "../core/provider"
  * @returns An object with only non-function properties of the Feature.
  */
 export const serializeFeature = (feature: Feature) => {
-  // biome-ignore lint/suspicious/noExplicitAny: Type is not critical for serialized data
-  return Object.keys(feature).reduce<Record<string, any>>((finale, key) => {
+  return Object.keys(feature).reduce<Record<string, JsonValue>>((finale, key) => {
     const value = feature[key as keyof typeof feature]
 
     if (isFunction(value)) {
