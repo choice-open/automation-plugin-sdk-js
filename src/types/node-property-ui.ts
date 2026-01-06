@@ -1,4 +1,4 @@
-import type { I18nText } from "./definition"
+import type { I18nText } from "./common"
 
 export interface NodePropertyUIOption {
   /**

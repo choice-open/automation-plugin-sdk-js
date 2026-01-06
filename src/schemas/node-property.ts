@@ -14,7 +14,7 @@ import type {
   NodePropertyObject,
   NodePropertyString,
 } from "../types"
-import { I18nEntrySchema } from "./definition"
+import { I18nEntrySchema } from "./common"
 import {
   NodePropertyUIArraySchema,
   NodePropertyUIBooleanSchema,

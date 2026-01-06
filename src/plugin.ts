@@ -2,6 +2,7 @@ import chalk from "chalk"
 import { logger } from "./core/logger"
 import { createRegistry } from "./core/registry"
 import { createTransporter } from "./core/transporter"
+import { CredentialDefinitionSchema, ModelDefinitionSchema, ToolDefinitionSchema } from "./schemas"
 import type {
   CredentialDefinition,
   ModelDefinition,
@@ -18,8 +19,9 @@ const log = logger.child({ name: "Phoenix" })
  * @returns An object containing methods to define providers and run the plugin process.
  */
 export function createPlugin<Locales extends string[]>(options: PluginDefinition<Locales>) {
-  const registry = createRegistry()
-  const transporter = createTransporter(options.transporterOptions)
+  const { transporterOptions, version = process.env.npm_package_version, ...plugin } = options
+  const registry = createRegistry(Object.assign(plugin, { version }))
+  const transporter = createTransporter(transporterOptions)
 
   return {
     /**
@@ -29,7 +31,8 @@ export function createPlugin<Locales extends string[]>(options: PluginDefinition
      * @throws Error if the credential is not registered.
      */
     addCredential: (credential: CredentialDefinition) => {
-      registry.register("credential", credential)
+      const definition = CredentialDefinitionSchema.parse(credential)
+      registry.register("credential", definition)
     },
 
     /**
@@ -39,7 +42,8 @@ export function createPlugin<Locales extends string[]>(options: PluginDefinition
      * @throws Error if the tool is not registered.
      */
     addTool: (tool: ToolDefinition) => {
-      registry.register("tool", tool)
+      const definition = ToolDefinitionSchema.parse(tool)
+      registry.register("tool", definition)
     },
 
     /**
@@ -49,7 +53,8 @@ export function createPlugin<Locales extends string[]>(options: PluginDefinition
      * @throws Error if the model is not registered.
      */
     addModel: (model: ModelDefinition) => {
-      registry.register("model", model)
+      const definition = ModelDefinitionSchema.parse(model)
+      registry.register("model", definition)
     },
 
     /**

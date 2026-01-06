@@ -1,17 +1,6 @@
-import type { LiteralUnion } from "type-fest"
 import type { TransporterOptions } from "../core/transporter"
+import type { I18nText } from "./common"
 import type { NodeProperty } from "./node-property"
-
-/**
- * I18n Entry
- */
-export interface I18nText {
-  /**
-   * English is required
-   */
-  en_US: string
-  [locale: `${LiteralUnion<"zh_Hans", string>}_${string}`]: string | undefined
-}
 
 export interface BaseDefinition {
   /**
@@ -64,9 +53,11 @@ export interface PluginDefinition<Locales extends string[] = string[]>
   /**
    * The version of the plugin.
    *
-   * This should match the version in the package.json file.
+   * If you do not provide this value, it will fallback to the version field in your package.json file.
+   *
+   * We recommend doing it this way, but if you do provide this value, please ensure that it remains consistent with the version field in package.json.
    */
-  version: string
+  version?: string
   /**
    * The options for the transporter.
    */
@@ -78,22 +69,17 @@ export type Feature = CredentialDefinition | DataSourceDefinition | ModelDefinit
 /**
  * Credential definition
  */
-export interface CredentialDefinition extends Omit<BaseDefinition, "settings"> {
-  type: "credential"
-}
+export interface CredentialDefinition extends Omit<BaseDefinition, "settings"> {}
 
 /**
  * DataSource definition
  */
-export interface DataSourceDefinition extends BaseDefinition {
-  type: "data_source"
-}
+export interface DataSourceDefinition extends BaseDefinition {}
 
 /**
  * Model definition
  */
 export interface ModelDefinition extends Omit<BaseDefinition, "parameters" | "settings"> {
-  type: "model"
   /**
    * The unique name of the model.
    *
@@ -108,10 +94,6 @@ export interface ModelDefinition extends Omit<BaseDefinition, "parameters" | "se
    * The default endpoint of the model.
    */
   default_endpoint?: string
-  /**
-   * Maximum context window size in tokens.
-   */
-  context_window: number
   /**
    * Supported input types.
    */
@@ -152,7 +134,72 @@ export interface ModelDefinition extends Omit<BaseDefinition, "parameters" | "se
     request?: number
   }
   /**
+   * Override the default parameters of the model.
+   */
+  override_parameters?: {
+    /**
+     * This setting influences the variety in the model’s responses. Lower values lead to more predictable and typical responses, while higher values encourage more diverse and less common responses. At 0, the model always gives the same response for a given input.
+     */
+    temperature?: {
+      /**
+       * @default 1.0
+       */
+      default?: number
+      /**
+       * @default 2.0
+       */
+      maximum?: number
+      /**
+       * @default 0.0
+       */
+      minimum?: number
+    }
+    /**
+     * This setting aims to control the repetition of tokens based on how often they appear in the input. It tries to use less frequently those tokens that appear more in the input, proportional to how frequently they occur. Token penalty scales with the number of occurrences. Negative values will encourage token reuse.
+     */
+    frequency_penalty?: {
+      /**
+       * @default 0.0
+       */
+      default?: number
+      /**
+       * @default 2.0
+       */
+      maximum?: number
+      /**
+       * @default -2.0
+       */
+      minimum?: number
+    }
+    /**
+     * This sets the upper limit for the number of tokens the model can generate in response. It won’t produce more than this limit. The maximum value is the context length minus the prompt length.
+     */
+    max_tokens?: {
+      /**
+       * @default 1_048_576
+       */
+      default?: number
+      /**
+       * @default 2_000_000
+       */
+      maximum?: number
+    }
+    /**
+     * Constrains the verbosity of the model’s response. Lower values produce more concise responses, while higher values produce more detailed and comprehensive responses. Introduced by OpenAI for the Responses API.
+     *
+     * For Anthropic models, this parameter maps to `output_config.effort`.
+     */
+    verbosity?: {
+      /**
+       * @default "medium"
+       */
+      default?: "low" | "medium" | "high"
+    }
+  }
+  /**
    * Declare which parameters are not supported by the model.
+   *
+   * Parameters defined here will not appear in the UI's parameter panel.
    *
    * Currently, the built-in parameters support are:
    * - endpoint
@@ -200,7 +247,6 @@ export interface ModelDefinition extends Omit<BaseDefinition, "parameters" | "se
  * Tool definition
  */
 export interface ToolDefinition extends BaseDefinition {
-  type: "tool"
   /**
    * The function to invoke when the tool is called.
    */

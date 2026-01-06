@@ -1,5 +1,5 @@
 import { assert } from "es-toolkit"
-import type { JsonValue } from "type-fest"
+import type { JsonValue, Simplify } from "type-fest"
 import type {
   CredentialDefinition,
   DataSourceDefinition,
@@ -10,8 +10,10 @@ import type {
 } from "../types"
 import { serializeFeature } from "../utils/serialize-feature"
 
+type PluginRegistry = Simplify<Omit<PluginDefinition, "transporterOptions">>
+
 interface RegistryStore {
-  plugin: PluginDefinition | null
+  plugin: PluginRegistry
   credential: Map<CredentialDefinition["name"], CredentialDefinition>
   data_source: Map<DataSourceDefinition["name"], DataSourceDefinition>
   model: Map<ModelDefinition["name"], ModelDefinition>
@@ -55,17 +57,13 @@ export interface Registry {
    * @returns The serialized registry.
    */
   serialize: () => {
-    plugin: PluginDefinition
-    credential: Array<Record<string, JsonValue>>
-    data_source: Array<Record<string, JsonValue>>
-    model: Array<Record<string, JsonValue>>
-    tool: Array<Record<string, JsonValue>>
+    plugin: PluginRegistry & Record<FeatureType, Array<Record<string, JsonValue>>>
   }
 }
 
-export function createRegistry(): Registry {
+export function createRegistry(plugin: PluginRegistry): Registry {
   const store: RegistryStore = {
-    plugin: null,
+    plugin,
     credential: new Map(),
     data_source: new Map(),
     model: new Map(),
@@ -96,12 +94,14 @@ export function createRegistry(): Registry {
     resolve,
     serialize: () => {
       assert(store.plugin, "Plugin is not registered")
+
       return {
-        plugin: store.plugin,
-        credential: Array.from(store.credential.values()).map(serializeFeature),
-        data_source: Array.from(store.data_source.values()).map(serializeFeature),
-        model: Array.from(store.model.values()).map(serializeFeature),
-        tool: Array.from(store.tool.values()).map(serializeFeature),
+        plugin: Object.assign(store.plugin, {
+          credential: Array.from(store.credential.values()).map(serializeFeature),
+          data_source: Array.from(store.data_source.values()).map(serializeFeature),
+          model: Array.from(store.model.values()).map(serializeFeature),
+          tool: Array.from(store.tool.values()).map(serializeFeature),
+        }),
       }
     },
   }

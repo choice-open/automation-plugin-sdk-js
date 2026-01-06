@@ -17,7 +17,7 @@ import type {
   NodePropertyUIString,
   NodePropertyUISwitchProps,
 } from "../types"
-import { I18nEntrySchema } from "./definition"
+import { I18nEntrySchema } from "./common"
 
 // Common UI properties schema
 export const NodePropertyUICommonPropsSchema = z.object({

@@ -1,44 +1,14 @@
-import { isPlainObject } from "es-toolkit/predicate"
 import type { IsEqual } from "type-fest"
 import { z } from "zod"
 import type {
   BaseDefinition,
   CredentialDefinition,
-  I18nText,
   ModelDefinition,
   PluginDefinition,
   ToolDefinition,
 } from "../types"
+import { I18nEntrySchema } from "./common"
 import { NodePropertiesSchema } from "./node-property"
-
-/**
- * I18n 词条模式
- *
- * NOTE: Zod 无法定义复杂的字面量模版，此处使用 `z.custom` 实现自定义验证
- */
-export const I18nEntrySchema = z.custom<I18nText>((value) => {
-  // 必须是对象字面量
-  if (!isPlainObject(value)) return false
-  // 必须包含 en_US 键
-  if (!("en_US" in value)) return false
-
-  for (const [locale, text] of Object.entries(value)) {
-    // 值必须是字符串
-    if (typeof text !== "string") return false
-
-    // NOTE: 支持的语言码并不严格符合标准，因为 TS 字面量模版无法描述所有可能的情况
-    //       故以下仅对满足需求的子集做简单检查而不是严格的 RFC 5646 标准检查
-    const parts = locale.split("_")
-    // 其它语言代码必须符合格式：<语言代码>_<国家或脚本代码>，且第二部份首字母必须大写
-    if (parts.length !== 2 || parts[1][0] !== parts[1][0].toUpperCase()) {
-      return false
-    }
-  }
-  return true
-}, "Invalid I18n entry")
-{
-  const _: IsEqual<z.infer<typeof I18nEntrySchema>, I18nText> = true
-}
 
 /**
  * 基础定义模式
@@ -62,7 +32,7 @@ export const PluginDefinitionSchema = z.object({
   author: z.string(),
   email: z.email(),
   repo: z.httpUrl().optional(),
-  version: z.string(),
+  version: z.string().optional(),
   locales: z.array(z.string()),
 })
 {
@@ -74,7 +44,6 @@ export const PluginDefinitionSchema = z.object({
 
 export const CredentialDefinitionSchema = z.object({
   ...BaseDefinitionSchema.omit({ settings: true }).shape,
-  type: z.literal("credential"),
 })
 {
   const _: IsEqual<z.infer<typeof CredentialDefinitionSchema>, CredentialDefinition> = true
@@ -88,7 +57,6 @@ export type DataSourceDefinition = z.infer<typeof DataSourceDefinitionSchema>
 
 export const ModelDefinitionSchema = z.object({
   ...BaseDefinitionSchema.omit({ parameters: true, settings: true }).shape,
-  type: z.literal("model"),
   name: z.string().refine(
     (value) => {
       const schema = z.templateLiteral([z.string(), z.literal("/"), z.string()])
@@ -98,7 +66,6 @@ export const ModelDefinitionSchema = z.object({
   ),
   model_type: z.literal("llm"),
   default_endpoint: z.httpUrl().optional(),
-  context_window: z.number(),
   input_modalities: z.array(z.enum(["file", "image", "text"])),
   output_modalities: z.array(z.enum(["text"])),
   pricing: z
@@ -109,6 +76,35 @@ export const ModelDefinitionSchema = z.object({
       input_cache_write: z.number().optional(),
       output: z.number().optional(),
       request: z.number().optional(),
+    })
+    .optional(),
+  override_parameters: z
+    .object({
+      temperature: z
+        .object({
+          default: z.number().optional(),
+          maximum: z.number().optional(),
+          minimum: z.number().optional(),
+        })
+        .optional(),
+      frequency_penalty: z
+        .object({
+          default: z.number().optional(),
+          maximum: z.number().optional(),
+          minimum: z.number().optional(),
+        })
+        .optional(),
+      max_tokens: z
+        .object({
+          default: z.number().optional(),
+          maximum: z.number().optional(),
+        })
+        .optional(),
+      verbosity: z
+        .object({
+          default: z.enum(["low", "medium", "high"]).optional(),
+        })
+        .optional(),
     })
     .optional(),
   unsupported_parameters: z.array(
@@ -147,8 +143,8 @@ export const ModelDefinitionSchema = z.object({
 
 export const ToolDefinitionSchema = z.object({
   ...BaseDefinitionSchema.shape,
-  type: z.literal("tool"),
+  invoke: z.function({ input: z.array(z.unknown()), output: z.instanceof(Promise<unknown>) }),
 })
 {
-  const _: IsEqual<z.infer<typeof ToolDefinitionSchema>, Omit<ToolDefinition, "invoke">> = true
+  const _: IsEqual<z.infer<typeof ToolDefinitionSchema>, ToolDefinition> = true
 }
