@@ -83,6 +83,10 @@ export interface ModelDefinition extends BaseDefinition {
    */
   name: string // NOTE: Do not define it as a template literal, use zod schema instead
   /**
+   * The type of the model, currently only "llm" is supported.
+   */
+  model_type: "llm"
+  /**
    * Maximum context window size in tokens.
    */
   context_window: number

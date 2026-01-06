@@ -92,6 +92,7 @@ export const ModelDefinitionSchema = z.object({
     },
     { error: "Invalid model name, should be in the format of `model_provider/model_name`" },
   ),
+  model_type: z.literal("llm"),
   context_window: z.number(),
   input_modalities: z.array(z.enum(["file", "image", "text"])),
   output_modalities: z.array(z.enum(["text"])),
