@@ -29,7 +29,7 @@ export interface BaseDefinition {
   /**
    * Icon, allowed to use Emoji or URL address
    */
-  icon: string | URL
+  icon: string
   /**
    * Parameters
    */
@@ -49,6 +49,24 @@ export interface PluginDefinition<Locales extends string[] = string[]>
    * The locales to support. Defaults to ["en_US"].
    */
   locales: Locales
+  /**
+   * The author's name of the plugin.
+   */
+  author: string
+  /**
+   * The author's email address.
+   */
+  email: string
+  /**
+   * The source URL of the plugin.
+   */
+  repo?: string
+  /**
+   * The version of the plugin.
+   *
+   * This should match the version in the package.json file.
+   */
+  version: string
   /**
    * The options for the transporter.
    */

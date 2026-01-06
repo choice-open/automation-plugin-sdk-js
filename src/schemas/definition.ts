@@ -49,7 +49,7 @@ export const BaseDefinitionSchema = z.object({
   name: z.string(),
   display_name: I18nEntrySchema,
   description: I18nEntrySchema,
-  icon: z.union([z.string(), z.instanceof(URL)]),
+  icon: z.string(),
   parameters: z.array(NodePropertySchema),
   settings: z.array(NodePropertySchema).optional(),
 })
@@ -59,6 +59,10 @@ export const BaseDefinitionSchema = z.object({
 
 export const PluginDefinitionSchema = z.object({
   ...BaseDefinitionSchema.omit({ parameters: true, settings: true }).shape,
+  author: z.string(),
+  email: z.email(),
+  repo: z.httpUrl().optional(),
+  version: z.string(),
   locales: z.array(z.string()),
 })
 {
@@ -93,7 +97,7 @@ export const ModelDefinitionSchema = z.object({
     { error: "Invalid model name, should be in the format of `model_provider/model_name`" },
   ),
   model_type: z.literal("llm"),
-  default_endpoint: z.string().optional(),
+  default_endpoint: z.httpUrl().optional(),
   context_window: z.number(),
   input_modalities: z.array(z.enum(["file", "image", "text"])),
   output_modalities: z.array(z.enum(["text"])),
