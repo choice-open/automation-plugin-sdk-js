@@ -5,6 +5,7 @@ import type {
   BaseDefinition,
   CredentialDefinition,
   I18nText,
+  ModelDefinition,
   PluginDefinition,
   ToolDefinition,
 } from "../types"
@@ -67,8 +68,9 @@ export const PluginDefinitionSchema = z.object({
   > = true
 }
 
-export const CredentialDefinitionSchema = BaseDefinitionSchema.omit({
-  settings: true,
+export const CredentialDefinitionSchema = z.object({
+  ...BaseDefinitionSchema.omit({ settings: true }).shape,
+  type: z.literal("credential"),
 })
 {
   const _: IsEqual<z.infer<typeof CredentialDefinitionSchema>, CredentialDefinition> = true
@@ -82,13 +84,60 @@ export type DataSourceDefinition = z.infer<typeof DataSourceDefinitionSchema>
 
 export const ModelDefinitionSchema = z.object({
   ...BaseDefinitionSchema.shape,
+  type: z.literal("model"),
+  name: z.string().refine(
+    (value) => {
+      const schema = z.templateLiteral([z.string(), z.literal("/"), z.string()])
+      return schema.safeParse(value).success
+    },
+    { error: "Invalid model name, should be in the format of `model_provider/model_name`" },
+  ),
+  context_window: z.number(),
+  input_modalities: z.array(z.enum(["file", "image", "text"])),
+  output_modalities: z.array(z.enum(["text"])),
+  pricing: z
+    .object({
+      currency: z.string().optional(),
+      input: z.number().optional(),
+      input_cache_read: z.number().optional(),
+      input_cache_write: z.number().optional(),
+      output: z.number().optional(),
+      request: z.number().optional(),
+    })
+    .optional(),
+  supported_parameters: z.array(
+    z.enum([
+      "temperature",
+      "top_p",
+      "top_k",
+      "frequency_penalty",
+      "presence_penalty",
+      "repetition_penalty",
+      "min_p",
+      "top_a",
+      "seed",
+      "max_tokens",
+      "logit_bias",
+      "logprobs",
+      "top_logprobs",
+      "response_format",
+      "structured_outputs",
+      "stop",
+      "tools",
+      "tool_choice",
+      "parallel_tool_calls",
+      "verbosity",
+    ]),
+  ),
 })
-
-export type ModelDefinition = z.infer<typeof ModelDefinitionSchema>
+{
+  const _: IsEqual<z.infer<typeof ModelDefinitionSchema>, ModelDefinition> = true
+}
 
 export const ToolDefinitionSchema = z.object({
   ...BaseDefinitionSchema.shape,
+  type: z.literal("tool"),
 })
 {
-  const _: IsEqual<z.infer<typeof ToolDefinitionSchema>, ToolDefinition> = true
+  const _: IsEqual<z.infer<typeof ToolDefinitionSchema>, Omit<ToolDefinition, "invoke">> = true
 }

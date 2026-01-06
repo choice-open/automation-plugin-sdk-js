@@ -1,6 +1,6 @@
 {
-  "biome.suggestInstallingGlobally": false,
   "[javascript][javascriptreact][typescript][typescriptreact]": {
     "editor.defaultFormatter": "biomejs.biome"
   },
+  "biome.suggestInstallingGlobally": false
 }

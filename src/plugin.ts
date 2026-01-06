@@ -2,7 +2,12 @@ import chalk from "chalk"
 import { logger } from "./core/logger"
 import { createRegistry } from "./core/registry"
 import { createTransporter } from "./core/transporter"
-import type { CredentialDefinition, PluginDefinition, ToolDefinition } from "./types"
+import type {
+  CredentialDefinition,
+  ModelDefinition,
+  PluginDefinition,
+  ToolDefinition,
+} from "./types"
 
 const log = logger.child({ name: "Phoenix" })
 
@@ -35,6 +40,16 @@ export function createPlugin<Locales extends string[]>(options: PluginDefinition
      */
     addTool: (tool: ToolDefinition) => {
       registry.register("tool", tool)
+    },
+
+    /**
+     * Adds a new model definition in the registry.
+     *
+     * @param model - The model to add.
+     * @throws Error if the model is not registered.
+     */
+    addModel: (model: ModelDefinition) => {
+      registry.register("model", model)
     },
 
     /**

@@ -71,7 +71,7 @@ export function createRegistry(): Registry {
     model: new Map(),
     tool: new Map(),
   }
-  
+
   function register(type: "credential", feature: CredentialDefinition): void
   function register(type: "data_source", feature: DataSourceDefinition): void
   function register(type: "model", feature: ModelDefinition): void
@@ -80,7 +80,7 @@ export function createRegistry(): Registry {
   function register(type: FeatureType, feature: any): void {
     store[type].set(feature.name, feature)
   }
-  
+
   function resolve(type: "credential", featureName: string): CredentialDefinition
   function resolve(type: "data_source", featureName: string): DataSourceDefinition
   function resolve(type: "model", featureName: string): ModelDefinition
