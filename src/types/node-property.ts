@@ -218,7 +218,7 @@ export type ArrayDiscriminatedItems<
   /**
    * Possible object types in the array; name is ignored when used in anyOf (used for grouping)
    */
-  anyOf: Array<
+  any_of: Array<
     NodePropertyObject<
       string,
       Record<string, JsonValue> & {
@@ -233,7 +233,7 @@ export type ArrayDiscriminatedItems<
   /**
    * UI component for displaying the discriminator field
    */
-  discriminatorUi?:
+  discriminator_ui?:
     | NodePropertyUISwitchProps
     | NodePropertyUISingleSelectProps
     | NodePropertyUIRadioGroupProps

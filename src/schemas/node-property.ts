@@ -212,7 +212,7 @@ const NodePropertyObjectSchema = NodePropertyBaseSchema.extend({
 
 const ArrayDiscriminatedItemsSchema = z
   .object({
-    get anyOf() {
+    get any_of() {
       return z.array(NodePropertyObjectSchema).min(2, "anyOf must have at least two items")
     },
     discriminator: z.string().min(1, "discriminator cannot be empty"),
@@ -220,8 +220,8 @@ const ArrayDiscriminatedItemsSchema = z
   })
   .refine(
     (v) => {
-      const { anyOf, discriminator } = v
-      return anyOf.every((i) => {
+      const { any_of, discriminator } = v
+      return any_of.every((i) => {
         const discriminatorProperty = i.properties.find((p) => p.name === discriminator)
         if (!discriminatorProperty) return false
         if (!("constant" in discriminatorProperty)) return false
@@ -243,9 +243,9 @@ const ArrayDiscriminatedItemsSchema = z
   )
   .refine(
     (v) => {
-      const { anyOf } = v
+      const { any_of } = v
       const allDiscriminatorProperty = compact(
-        anyOf.map((i) => {
+        any_of.map((i) => {
           const discriminatorProperty = i.properties.find((p) => p.name === v.discriminator)
           if (!discriminatorProperty) return false
           return discriminatorProperty.constant as string | number | boolean
