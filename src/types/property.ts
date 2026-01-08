@@ -213,22 +213,12 @@ export interface PropertyObject<
   ui?: PropertyUIObject
 }
 
-export type DiscriminatedUnion<
-  TDiscriminator extends string = string,
-  TDiscriminatorValue extends string | number | boolean = string | number | boolean,
-> = {
+export type DiscriminatedUnion<TDiscriminator extends string = string> = {
   type: "discriminated_union"
   /**
    * Possible object types in the array; name is ignored when used in anyOf (used for grouping)
    */
-  any_of: Array<
-    PropertyObject<
-      string,
-      Record<string, JsonValue> & {
-        [K in TDiscriminator]: TDiscriminatorValue
-      }
-    >
-  >
+  any_of: Array<PropertyObject>
   /**
    * Property name used to discriminate between types
    */

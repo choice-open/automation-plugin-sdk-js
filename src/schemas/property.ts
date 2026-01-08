@@ -273,7 +273,7 @@ const DiscriminatedUnionSchema = z
         any_of.map((i) => {
           const discriminatorProperty = i.properties.find((p) => p.name === v.discriminator)
           if (!discriminatorProperty) return false
-          return discriminatorProperty.constant as string | number | boolean
+          return discriminatorProperty.constant
         }),
       )
       const uniqueValues = new Set(allDiscriminatorProperty)
@@ -284,21 +284,17 @@ const DiscriminatedUnionSchema = z
     },
   )
 {
-  const schema = DiscriminatedUnionSchema.omit({ any_of: true })
-  const _: IsEqual<z.infer<typeof schema>, Omit<DiscriminatedUnion, "any_of">> = true
+  const _: IsEqual<z.infer<typeof DiscriminatedUnionSchema>, DiscriminatedUnion> = true
 }
-
-const ItemsSchema: z.ZodType<Property | DiscriminatedUnion> = z.lazy(() =>
-  // use type assertion because of generic type plus recursive structure
-  z.union([PropertySchema, DiscriminatedUnionSchema as z.ZodType<DiscriminatedUnion>]),
-)
 
 const PropertyArraySchema = PropertyBaseSchema.extend({
   type: z.literal("array"),
   constant: z.array(JsonValueSchema).optional(),
   default: z.array(JsonValueSchema).optional(),
   enum: z.array(z.array(JsonValueSchema)).optional(),
-  items: ItemsSchema,
+  get items() {
+    return z.union([PropertySchema, DiscriminatedUnionSchema])
+  },
   max_items: z.number().optional(),
   min_items: z.number().optional(),
   ui: PropertyUIArraySchema.optional(),
