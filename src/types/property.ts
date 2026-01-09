@@ -237,8 +237,10 @@ export interface PropertyObject<
   ui?: PropertyUIObject
 }
 
-export interface PropertyDiscriminatedUnion<TDiscriminator extends string = string>
-  extends PropertyBase<TDiscriminator> {
+export interface PropertyDiscriminatedUnion<
+  TName extends string = string,
+  TDiscriminator extends string = string,
+> extends PropertyBase<TName> {
   type: "discriminated_union"
   /**
    * Possible object types in the array; name is ignored when used in anyOf (used for grouping)
