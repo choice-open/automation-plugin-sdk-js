@@ -133,18 +133,6 @@ export interface PropertyBase<TName extends string = string> {
     show?: DisplayCondition
   }
   /**
-   * Restrict value to a set of allowed values
-   */
-  enum?: Array<JsonValue>
-  /**
-   * Restrict value to a single constant
-   */
-  constant?: JsonValue
-  /**
-   * Default value when not specified
-   */
-  default?: JsonValue
-  /**
    * AI-related configuration
    */
   ai?: {
@@ -158,8 +146,17 @@ export interface PropertyBase<TName extends string = string> {
 
 export interface PropertyString<TName extends string = string> extends PropertyBase<TName> {
   type: "string"
+  /**
+   * Restrict value to a single constant
+   */
   constant?: string
+  /**
+   * Default value when not specified
+   */
   default?: string
+  /**
+   * Restrict value to a set of allowed values
+   */
   enum?: Array<string>
   /**
    * Maximum string length
@@ -174,8 +171,17 @@ export interface PropertyString<TName extends string = string> extends PropertyB
 
 export interface PropertyNumber<TName extends string = string> extends PropertyBase<TName> {
   type: "number" | "integer"
+  /**
+   * Restrict value to a single constant
+   */
   constant?: number
+  /**
+   * Default value when not specified
+   */
   default?: number
+  /**
+   * Restrict value to a set of allowed values
+   */
   enum?: Array<number>
   /**
    * Maximum value (inclusive)
@@ -190,8 +196,17 @@ export interface PropertyNumber<TName extends string = string> extends PropertyB
 
 export interface PropertyBoolean<TName extends string = string> extends PropertyBase<TName> {
   type: "boolean"
+  /**
+   * Restrict value to a single constant
+   */
   constant?: boolean
+  /**
+   * Default value when not specified
+   */
   default?: boolean
+  /**
+   * Restrict value to a set of allowed values
+   */
   enum?: Array<boolean>
   ui?: PropertyUIBoolean
 }
@@ -207,13 +222,23 @@ export interface PropertyObject<
   properties: Array<
     Property<TValue extends Record<string, JsonValue> ? Exclude<keyof TValue, number> : string>
   >
+  /**
+   * Restrict value to a single constant
+   */
   constant?: TValue
+  /**
+   * Default value when not specified
+   */
   default?: TValue
+  /**
+   * Restrict value to a set of allowed values
+   */
   enum?: Array<TValue>
   ui?: PropertyUIObject
 }
 
-export type DiscriminatedUnion<TDiscriminator extends string = string> = {
+export interface PropertyDiscriminatedUnion<TDiscriminator extends string = string>
+  extends PropertyBase<TDiscriminator> {
   type: "discriminated_union"
   /**
    * Possible object types in the array; name is ignored when used in anyOf (used for grouping)
@@ -235,11 +260,9 @@ export interface PropertyArray<TName extends string = string> extends PropertyBa
   default?: Array<JsonValue>
   enum?: Array<Array<JsonValue>>
   /**
-   * Item schema: uniform type or discriminated union
+   * Item schema for array elements
    */
-  items:
-    | Property // uniform items - array with same type for all elements
-    | DiscriminatedUnion // discriminated union - polymorphic array items
+  items: Property
   /**
    * Maximum array size (inclusive)
    */
@@ -276,3 +299,4 @@ export type Property<TName extends string = string, TValue extends JsonValue = J
   | PropertyNumber<TName>
   | PropertyCredentialId<TName>
   | PropertyEncryptedString<TName>
+  | PropertyDiscriminatedUnion<TName>

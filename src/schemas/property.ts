@@ -2,7 +2,6 @@ import { compact } from "es-toolkit"
 import type { IsEqual, JsonValue } from "type-fest"
 import { z } from "zod"
 import type {
-  DiscriminatedUnion,
   DisplayCondition,
   FilterOperators,
   Property,
@@ -10,6 +9,7 @@ import type {
   PropertyBase,
   PropertyBoolean,
   PropertyCredentialId,
+  PropertyDiscriminatedUnion,
   PropertyEncryptedString,
   PropertyNumber,
   PropertyObject,
@@ -99,9 +99,6 @@ const PropertyBaseSchema = z.object({
 
   display_name: I18nEntrySchema.optional(),
   required: z.boolean().optional(),
-  constant: JsonValueSchema.optional(),
-  default: JsonValueSchema.optional(),
-  enum: z.array(JsonValueSchema).optional(),
   display: z
     .object({
       hide: FilterSchema.optional(),
@@ -118,50 +115,6 @@ const PropertyBaseSchema = z.object({
 {
   const _: IsEqual<z.infer<typeof PropertyBaseSchema>, PropertyBase<string>> = true
 }
-
-// const expressionSchema = z.custom<string>((val) => {
-//   if (typeof val !== "string") return false
-//   const trimmed = val.trim()
-//   return trimmed.startsWith("={{") && trimmed.endsWith("}}")
-// }, "Invalid expression format")
-
-/**
- * check that constant, default, and enum must not contain expression values
- * if ui.support_expression is not true
- */
-// function setExpressionValueCheck<T extends z.ZodType<Property>>(schema: T) {
-//   return schema.refine(
-//     (obj) => {
-//       if (obj.ui?.support_expression) return true
-//       switch (obj.type) {
-//         case "string":
-//         case "credential_id": {
-//           return true
-//         }
-//         case "number":
-//         case "integer":
-//         case "array":
-//         case "object":
-//         case "boolean": {
-//           const checkConstant = obj.constant
-//           if (typeof checkConstant === "string") return false
-//           const checkDefault = obj.default
-//           if (typeof checkDefault === "string") return false
-//           const checkEnum = obj.enum
-//           return (checkEnum ?? []).every((item) => typeof item !== "string")
-//         }
-//         default: {
-//           const _t: never = obj
-//           return false
-//         }
-//       }
-//     },
-//     {
-//       error:
-//         "constant, default, and enum cannot contain expression values if ui.support_expression is not true",
-//     },
-//   )
-// }
 
 const PropertyStringSchema = PropertyBaseSchema.extend({
   type: z.literal("string"),
@@ -234,15 +187,14 @@ const PropertyObjectSchema = PropertyBaseSchema.extend({
   const _: IsEqual<PropertyObjectInferred, PropertyObject> = true
 }
 
-const DiscriminatedUnionSchema = z
-  .object({
-    type: z.literal("discriminated_union"),
-    get any_of() {
-      return z.array(PropertyObjectSchema).min(2, "anyOf must have at least two items")
-    },
-    discriminator: z.string().min(1, "discriminator cannot be empty"),
-    discriminator_ui: PropertyUIDiscriminatorUISchema.optional(),
-  })
+const PropertyDiscriminatedUnionSchema = PropertyBaseSchema.extend({
+  type: z.literal("discriminated_union"),
+  get any_of() {
+    return z.array(PropertyObjectSchema).min(2, "anyOf must have at least two items")
+  },
+  discriminator: z.string().min(1, "discriminator cannot be empty"),
+  discriminator_ui: PropertyUIDiscriminatorUISchema.optional(),
+})
   .refine(
     (v) => {
       const { any_of, discriminator } = v
@@ -272,7 +224,8 @@ const DiscriminatedUnionSchema = z
       const allDiscriminatorProperty = compact(
         any_of.map((i) => {
           const discriminatorProperty = i.properties.find((p) => p.name === v.discriminator)
-          if (!discriminatorProperty) return false
+          if (!discriminatorProperty) return null
+          if (!("constant" in discriminatorProperty)) return null
           return discriminatorProperty.constant
         }),
       )
@@ -284,7 +237,10 @@ const DiscriminatedUnionSchema = z
     },
   )
 {
-  const _: IsEqual<z.infer<typeof DiscriminatedUnionSchema>, DiscriminatedUnion> = true
+  const _: IsEqual<
+    z.infer<typeof PropertyDiscriminatedUnionSchema>,
+    PropertyDiscriminatedUnion
+  > = true
 }
 
 const PropertyArraySchema = PropertyBaseSchema.extend({
@@ -293,7 +249,7 @@ const PropertyArraySchema = PropertyBaseSchema.extend({
   default: z.array(JsonValueSchema).optional(),
   enum: z.array(z.array(JsonValueSchema)).optional(),
   get items() {
-    return z.union([PropertySchema, DiscriminatedUnionSchema])
+    return PropertySchema
   },
   max_items: z.number().optional(),
   min_items: z.number().optional(),
@@ -328,6 +284,7 @@ const PropertySchema = z.union([
   PropertyObjectSchema,
   PropertyCredentialIdSchema,
   PropertyEncryptedStringSchema,
+  PropertyDiscriminatedUnionSchema,
 ])
 {
   const _: IsEqual<z.infer<typeof PropertySchema>, Property> = true
