@@ -170,7 +170,7 @@ function setDuplicatePropertyNamesCheck<T extends z.ZodType<Array<Property>>>(sc
 }
 
 // use type assertion and lazy to avoid circular reference error
-const ArrayPropertiesSchema: z.ZodType<Array<Property>> = z.lazy(() =>
+const ArrayPropertiesSchema: z.ZodType<PropertyObject["properties"]> = z.lazy(() =>
   z.array(PropertySchema).apply(setDuplicatePropertyNamesCheck),
 )
 
@@ -190,7 +190,9 @@ const PropertyObjectSchema = PropertyBaseSchema.extend({
 const PropertyDiscriminatedUnionSchema = PropertyBaseSchema.extend({
   type: z.literal("discriminated_union"),
   get any_of() {
-    return z.array(PropertyObjectSchema).min(2, "anyOf must have at least two items")
+    return z
+      .array(PropertyObjectSchema.pick({ name: true, type: true, properties: true }))
+      .min(2, "anyOf must have at least two items")
   },
   discriminator: z.string().min(1, "discriminator cannot be empty"),
   discriminator_ui: PropertyUIDiscriminatorUISchema.optional(),
@@ -199,7 +201,7 @@ const PropertyDiscriminatedUnionSchema = PropertyBaseSchema.extend({
     (v) => {
       const { any_of, discriminator } = v
       return any_of.every((i) => {
-        const discriminatorProperty = i.properties.find((p) => p.name === discriminator)
+        const discriminatorProperty = i.properties?.find((p) => p.name === discriminator)
         if (!discriminatorProperty) return false
         if (!("constant" in discriminatorProperty)) return false
         if (
@@ -223,7 +225,7 @@ const PropertyDiscriminatedUnionSchema = PropertyBaseSchema.extend({
       const { any_of } = v
       const allDiscriminatorProperty = compact(
         any_of.map((i) => {
-          const discriminatorProperty = i.properties.find((p) => p.name === v.discriminator)
+          const discriminatorProperty = i.properties?.find((p) => p.name === v.discriminator)
           if (!discriminatorProperty) return null
           if (!("constant" in discriminatorProperty)) return null
           return discriminatorProperty.constant

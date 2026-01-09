@@ -109,8 +109,6 @@ export interface FilterOperators<TValue extends JsonValue = JsonValue> {
   $size?: TValue extends Array<unknown> ? number : never
 }
 
-// type ExpressionValue = string
-
 export interface PropertyBase<TName extends string = string> {
   /**
    * Unique property name within the same level
@@ -211,17 +209,35 @@ export interface PropertyBoolean<TName extends string = string> extends Property
   ui?: PropertyUIBoolean
 }
 
+/**
+ * Object Property Type
+ * @template TName - Type of the property name
+ * @template TDiscriminator - When PropertyObject is used as a variant(any_of) in PropertyDiscriminatedUnion, this type represents the discriminator property name
+ * @template TValue - real value type of the object property
+ */
 export interface PropertyObject<
   TName extends string = string,
+  TDiscriminator extends string = string,
   TValue extends Record<string, JsonValue> = Record<string, JsonValue>,
 > extends PropertyBase<TName> {
   type: "object"
   /**
    * Child properties of the object
    */
-  properties: Array<
-    Property<TValue extends Record<string, JsonValue> ? Exclude<keyof TValue, number> : string>
-  >
+  properties: string extends TDiscriminator
+    ? Array<
+        Property<TValue extends Record<string, JsonValue> ? Exclude<keyof TValue, number> : string>
+      >
+    : // when discriminator is specified, ensure the discriminator property is the first property
+      [
+        Property<TDiscriminator> & { constant: TValue[TDiscriminator] },
+        ...Array<
+          Property<
+            TValue extends Record<string, JsonValue> ? Exclude<keyof TValue, number> : string
+          >
+        >,
+      ]
+
   /**
    * Restrict value to a single constant
    */
@@ -243,9 +259,10 @@ export interface PropertyDiscriminatedUnion<
 > extends PropertyBase<TName> {
   type: "discriminated_union"
   /**
-   * Possible object types in the array; name is ignored when used in anyOf (used for grouping)
+   * Possible object types in the array.
+   * only partial definition of PropertyObject is allowed to define the variants.
    */
-  any_of: Array<PropertyObject>
+  any_of: Array<Pick<PropertyObject<string, TDiscriminator>, "name" | "type" | "properties">>
   /**
    * Property name used to discriminate between types
    */
@@ -295,10 +312,10 @@ export interface PropertyEncryptedString<TName extends string = string>
 
 export type Property<TName extends string = string, TValue extends JsonValue = JsonValue> =
   | PropertyArray<TName>
-  | PropertyObject<TName, TValue extends JsonObject ? TValue : JsonObject>
+  | PropertyObject<TName, string, TValue extends JsonObject ? TValue : JsonObject>
   | PropertyString<TName>
   | PropertyBoolean<TName>
   | PropertyNumber<TName>
   | PropertyCredentialId<TName>
   | PropertyEncryptedString<TName>
-  | PropertyDiscriminatedUnion<TName>
+  | PropertyDiscriminatedUnion<TName, string>
