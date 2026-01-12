@@ -1,4 +1,4 @@
-import type { IsEqual } from "type-fest"
+import type { IntRange, IsEqual } from "type-fest"
 import { z } from "zod"
 import type {
   PropertyUIArray,
@@ -20,6 +20,52 @@ import type {
 } from "../types"
 import { I18nEntrySchema } from "./common"
 
+const indentationSchema = z.union([
+  z.literal(2),
+  z.literal(4),
+  z.literal(6),
+  z.literal(8),
+  z.literal(10),
+  z.literal(12),
+  z.literal(14),
+  z.literal(16),
+  z.literal(18),
+  z.literal(20),
+  z.literal(22),
+  z.literal(24),
+  z.literal(26),
+  z.literal(28),
+  z.literal(30),
+  z.literal(32),
+  z.literal(34),
+  z.literal(36),
+  z.literal(38),
+  z.literal(40),
+  z.literal(42),
+  z.literal(44),
+  z.literal(46),
+  z.literal(48),
+  z.literal(50),
+  z.literal(52),
+  z.literal(54),
+  z.literal(56),
+  z.literal(58),
+  z.literal(60),
+  z.literal(62),
+  z.literal(64),
+  z.literal(66),
+  z.literal(68),
+  z.literal(70),
+  z.literal(72),
+  z.literal(74),
+  z.literal(76),
+  z.literal(78),
+  z.literal(80),
+])
+{
+  const _: IsEqual<z.infer<typeof indentationSchema>, IntRange<2, 81, 2>> = true
+}
+
 // Common UI properties schema
 export const PropertyUICommonPropsSchema = z.object({
   disabled: z.boolean().optional(),
@@ -29,6 +75,7 @@ export const PropertyUICommonPropsSchema = z.object({
   sensitive: z.boolean().optional(),
   support_expression: z.boolean().optional(),
   width: z.enum(["small", "medium", "full"]).optional(),
+  indentation: indentationSchema.optional(),
 })
 
 // Option schema for select components

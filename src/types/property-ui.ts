@@ -1,3 +1,4 @@
+import type { IntRange } from "type-fest"
 import type { I18nText } from "./common"
 
 export interface PropertyUIOption {
@@ -45,6 +46,12 @@ export interface PropertyUICommonProps {
    * The width of the component
    */
   width?: "small" | "medium" | "full"
+  /**
+   * how many spaces to use for indentation in components
+   * @default undefined
+   * calculation rule: (4 * indentation)px
+   */
+  indentation?: IntRange<2, 81, 2>
 }
 
 export interface PropertyUIEncryptedInputProps extends PropertyUICommonProps {
