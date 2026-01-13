@@ -4,12 +4,12 @@ TypeScript 类型定义，描述插件系统的核心数据结构。
 
 ## 模块列表
 
-| 文件                  | 说明                        |
-| --------------------- | --------------------------- |
-| `common.ts`           | 通用类型（I18n 国际化文本） |
-| `definition.ts`       | 插件与功能定义类型          |
-| `node-property.ts`    | 节点属性类型（参数配置）    |
-| `node-property-ui.ts` | 节点属性 UI 组件类型        |
+| 文件             | 说明                        |
+| ---------------- | --------------------------- |
+| `common.ts`      | 通用类型（I18n 国际化文本） |
+| `definition.ts`  | 插件与功能定义类型          |
+| `property.ts`    | 属性类型（参数配置）        |
+| `property-ui.ts` | 属性 UI 组件类型            |
 
 ## common.ts
 
@@ -45,27 +45,28 @@ interface I18nText {
 - `parameters`: 参数列表
 - `settings`: 可选设置列表
 
-## node-property.ts
+## property.ts
 
 定义参数属性的类型系统，支持多种数据类型：
 
-| 类型                          | 说明                     |
-| ----------------------------- | ------------------------ |
-| `NodePropertyString`          | 字符串类型               |
-| `NodePropertyNumber`          | 数字/整数类型            |
-| `NodePropertyBoolean`         | 布尔类型                 |
-| `NodePropertyArray`           | 数组类型                 |
-| `NodePropertyObject`          | 对象类型（嵌套属性）     |
-| `NodePropertyCredentialId`    | 凭证 ID 引用类型         |
-| `NodePropertyEncryptedString` | 加密字符串类型           |
-| `DiscriminatedUnion`          | 鉴别联合类型（多态数组） |
+| 类型                         | 说明                     |
+| ---------------------------- | ------------------------ |
+| `PropertyString`             | 字符串类型               |
+| `PropertyNumber`             | 数字/整数类型            |
+| `PropertyBoolean`            | 布尔类型                 |
+| `PropertyArray`              | 数组类型                 |
+| `PropertyObject`             | 对象类型（嵌套属性）     |
+| `PropertyCredentialId`       | 凭证 ID 引用类型         |
+| `PropertyEncryptedString`    | 加密字符串类型           |
+| `PropertyDiscriminatedUnion` | 鉴别联合类型（多态对象） |
 
 ### 核心概念
 
 - **DisplayCondition**: 基于 MongoDB 查询语法的条件显示控制
 - **FilterOperators**: 支持 `$eq`, `$in`, `$gt`, `$regex` 等操作符
+- **additional_properties**: 对象类型支持动态键，允许超出定义属性的额外属性
 
-## node-property-ui.ts
+## property-ui.ts
 
 定义 UI 组件类型，用于渲染参数编辑界面：
 
@@ -87,7 +88,7 @@ interface I18nText {
 ```
 common.ts
     ↓
-definition.ts ← node-property.ts ← node-property-ui.ts
+definition.ts ← property.ts ← property-ui.ts
 ```
 
 - `types.ts`（根目录）统一导出所有类型
