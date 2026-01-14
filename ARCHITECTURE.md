@@ -5,14 +5,14 @@
 
 ## 项目概述
 
-Choiceform Automation Plugin JavaScript/TypeScript SDK 是一个用于开发自动化插件的软件开发工具包。它提供了完整的类型系统、运行时验证和与 Daemon Server 通信的能力，使开发者能够快速构建符合规范的插件。
+Choiceform Automation Plugin JavaScript/TypeScript SDK 是一个用于开发自动化插件的软件开发工具包。它提供了完整的类型系统、运行时验证和与 Hub Server 通信的能力，使开发者能够快速构建符合规范的插件。
 
 ### 主要功能
 
 1. **类型安全** - 完整的 TypeScript 类型定义，支持 20+ 种 UI 组件和多种数据类型
 2. **运行时验证** - 基于 Zod 的 schema 验证，确保数据合法性
 3. **功能注册** - 支持注册 Credential、Tool、Model、DataSource 四种功能类型
-4. **网络通信** - 基于 Phoenix WebSocket 与 Daemon Server 实时通信
+4. **网络通信** - 基于 Phoenix WebSocket 与 Hub Server 实时通信
 5. **国际化** - 内置 i18n 支持，支持多语言定义
 
 ### 技术栈
@@ -111,7 +111,7 @@ graph TB
     end
     
     subgraph "外部系统"
-        L[Daemon Server<br/>WebSocket]
+        L[Hub Server<br/>WebSocket]
     end
     
     A -->|使用| B
@@ -160,7 +160,7 @@ sequenceDiagram
     participant Registry as Registry
     participant Schema as Schema
     participant Trans as Transporter
-    participant Server as Daemon Server
+    participant Server as Hub Server
     
     Dev->>Plugin: 1. 创建插件
     Plugin->>Registry: 初始化 Registry
@@ -312,7 +312,7 @@ Socket (Phoenix)
 ```
 
 **核心流程：**
-1. 创建 Socket 连接到 `DAEMON_SERVER_WS_URL`
+1. 创建 Socket 连接到 `HUB_SERVER_WS_URL`
 2. 加入 `mirror:lobby` 频道
 3. 发送序列化的插件信息
 4. 监听工具调用请求并执行
@@ -387,7 +387,7 @@ NodePropertyUIProps (20+ 种组件)
 ### WebSocket 连接
 
 ```
-ws(s)://daemon-server/socket
+ws(s)://hub-server/socket
   └── channel: mirror:lobby
       ├── join() -> { status: "ok" | "error" }
       ├── push("shout", payload)
