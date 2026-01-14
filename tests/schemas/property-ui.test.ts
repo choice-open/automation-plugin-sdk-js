@@ -391,11 +391,7 @@ describe("PropertyUIEncryptedStringSchema - component matching", () => {
   })
 })
 
-/**
- * NOTE: PropertyUIPropsSchema has a bug - it uses discriminatedUnion("type", ...)
- * but the component schemas have "component" field, not "type". Skipping these tests.
- */
-describe.skip("PropertyUIPropsSchema (skipped: schema has incorrect discriminator)", () => {
+describe("PropertyUIPropsSchema - discriminated union by component", () => {
   test("should correctly parse input component", () => {
     const result = PropertyUIPropsSchema.safeParse({ component: "input" })
     expect(result.success).toBe(true)

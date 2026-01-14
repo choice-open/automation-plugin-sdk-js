@@ -3,23 +3,13 @@ import { PropertiesSchema } from "../../src/schemas/property"
 
 const validI18n = { en_US: "Test" }
 
-/**
- * NOTE: PropertyDiscriminatedUnionSchema has a known Zod limitation where .pick()
- * cannot be used on schemas with refinements. This causes errors when Zod tries
- * all union branches during validation failures. Tests that expect validation
- * to fail are skipped with describe.skip to avoid triggering this bug.
- *
- * See: https://github.com/colinhacks/zod/issues/2474
- */
-
 describe("PropertyBaseSchema - name validation", () => {
   const createProperty = (name: string) => ({
     name,
     type: "string" as const,
   })
 
-  // Skip rejection tests due to Zod .pick() limitation on refined schemas
-  describe.skip("empty and whitespace (skipped: triggers Zod .pick() bug)", () => {
+  describe("empty and whitespace", () => {
     test("should reject empty string", () => {
       const result = PropertiesSchema.safeParse([createProperty("")])
       expect(result.success).toBe(false)
@@ -37,8 +27,7 @@ describe("PropertyBaseSchema - name validation", () => {
   })
 
   describe("dollar sign prefix", () => {
-    // Skip rejection test
-    test.skip("should reject name starting with $ (skipped: triggers Zod .pick() bug)", () => {
+    test("should reject name starting with $", () => {
       const result = PropertiesSchema.safeParse([createProperty("$name")])
       expect(result.success).toBe(false)
     })
@@ -54,8 +43,7 @@ describe("PropertyBaseSchema - name validation", () => {
     })
   })
 
-  // Skip rejection tests due to Zod .pick() limitation
-  describe.skip("forbidden characters (skipped: triggers Zod .pick() bug)", () => {
+  describe("forbidden characters", () => {
     test("should reject name containing dot", () => {
       const result = PropertiesSchema.safeParse([createProperty("na.me")])
       expect(result.success).toBe(false)
@@ -193,12 +181,7 @@ describe("PropertyBooleanSchema", () => {
   })
 })
 
-/**
- * PropertyObjectSchema tests are skipped because the PropertyDiscriminatedUnionSchema
- * uses .pick() on PropertyObjectSchema which has refinements - a Zod limitation.
- * This causes errors when Zod evaluates the union branches.
- */
-describe.skip("PropertyObjectSchema (skipped: triggers Zod .pick() bug via union)", () => {
+describe("PropertyObjectSchema", () => {
   describe("constant and properties constraint", () => {
     test("should reject when constant defined with non-empty properties", () => {
       const result = PropertiesSchema.safeParse([
@@ -261,8 +244,7 @@ describe.skip("PropertyObjectSchema (skipped: triggers Zod .pick() bug via union
   })
 })
 
-// Skip entire discriminated union tests due to Zod .pick() limitation
-describe.skip("PropertyDiscriminatedUnionSchema (skipped: Zod .pick() bug on refined schemas)", () => {
+describe("PropertyDiscriminatedUnionSchema", () => {
   const createDiscriminatedUnion = (overrides: Record<string, unknown> = {}) => ({
     name: "union",
     type: "discriminated_union" as const,
@@ -345,8 +327,7 @@ describe("PropertiesSchema - duplicate names", () => {
     expect(result.success).toBe(true)
   })
 
-  // Skip nested duplicate tests due to Zod .pick() limitation
-  describe.skip("nested duplicates (skipped: triggers Zod .pick() bug)", () => {
+  describe("nested duplicates", () => {
     test("should reject nested properties with duplicate names", () => {
       const result = PropertiesSchema.safeParse([
         {
@@ -362,8 +343,7 @@ describe("PropertiesSchema - duplicate names", () => {
     })
   })
 
-  // Skip: involves object type which triggers the Zod bug
-  test.skip("should accept same name in different nesting levels (skipped: Zod bug)", () => {
+  test("should accept same name in different nesting levels", () => {
     const result = PropertiesSchema.safeParse([
       { name: "field", type: "string" },
       {
@@ -388,8 +368,7 @@ describe("PropertyArraySchema", () => {
     expect(result.success).toBe(true)
   })
 
-  // Skip: involves object type which triggers the Zod bug
-  test.skip("should accept array with nested object items (skipped: Zod bug)", () => {
+  test("should accept array with nested object items", () => {
     const result = PropertiesSchema.safeParse([
       {
         name: "items",
@@ -430,11 +409,7 @@ describe("PropertyArraySchema", () => {
   })
 })
 
-/**
- * PropertyCredentialIdSchema tests are skipped because accessing PropertiesSchema
- * triggers evaluation of PropertyDiscriminatedUnionSchema which has the .pick() bug.
- */
-describe.skip("PropertyCredentialIdSchema (skipped: triggers Zod .pick() bug)", () => {
+describe("PropertyCredentialIdSchema", () => {
   test("should accept valid credential_id property", () => {
     const result = PropertiesSchema.safeParse([
       {
@@ -481,11 +456,7 @@ describe.skip("PropertyCredentialIdSchema (skipped: triggers Zod .pick() bug)", 
   })
 })
 
-/**
- * PropertyEncryptedStringSchema tests are skipped because accessing PropertiesSchema
- * triggers evaluation of PropertyDiscriminatedUnionSchema which has the .pick() bug.
- */
-describe.skip("PropertyEncryptedStringSchema (skipped: triggers Zod .pick() bug)", () => {
+describe("PropertyEncryptedStringSchema", () => {
   test("should accept valid encrypted_string property", () => {
     const result = PropertiesSchema.safeParse([
       {

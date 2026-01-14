@@ -9,45 +9,23 @@
 - `property.test.ts` - Property Schema 测试 (String, Number, Boolean, Array, Object 等)
 - `property-ui.test.ts` - Property UI 组件 Schema 测试
 
-## 已知限制
+## 已解决的问题
 
-### Zod `.pick()` 限制
+### ✅ Zod `.pick()` 限制（已解决）
 
-`PropertyDiscriminatedUnionSchema` 使用 `.pick()` 方法作用于 `PropertyObjectSchema`，而后者包含 `.refine()` 调用。这是 Zod 的已知限制 - 无法在包含 refinements 的 schema 上使用 `.pick()`。
+**问题描述：** 之前 `PropertyDiscriminatedUnionSchema` 的 `any_of` getter 使用 `.pick()` 方法作用于 `PropertyObjectSchema`，而后者包含 `.refine()` 调用。这是 Zod 的已知限制 - 无法在包含 refinements 的 schema 上使用 `.pick()`。
 
-这导致以下测试被跳过：
-- 所有涉及 `discriminated_union` 类型的测试
-- 部分涉及嵌套 object 类型的测试
-- `credential_id` 和 `encrypted_string` 类型的测试
+**解决方案：** `PropertyDiscriminatedUnionSchema` 的 `any_of` getter 现在直接使用 `z.array(PropertyObjectSchema)`，不再使用 `.pick()` 方法。
 
-相关 Issue: https://github.com/colinhacks/zod/issues/2474
+**状态：** ✅ 已修复，所有相关测试已启用。
 
-@nightire: 实际运行测试插件的时候观察到的错误：
+### ✅ PropertyUIPropsSchema 问题（已解决）
 
-```shell
-328 | export function pick(schema, mask) {
-329 |     const currDef = schema._zod.def;
-330 |     const checks = currDef.checks;
-331 |     const hasChecks = checks && checks.length > 0;
-332 |     if (hasChecks) {
-333 |         throw new Error(".pick() cannot be used on object schemas containing refinements");
-                        ^
-error: .pick() cannot be used on object schemas containing refinements
-      at pick (/Users/nightire/Code/github.com/choice-open/automation-plugin-sdk-js/node_modules/zod/v4/core/util.js:333:19)
-      at any_of (/Users/nightire/Code/github.com/choice-open/automation-plugin-sdk-js/dist/schemas-CcEs2mnw.js:364:39)
-      at shape (/Users/nightire/Code/github.com/choice-open/automation-plugin-sdk-js/node_modules/zod/v4/core/util.js:396:59)
-      at normalizeDef (/Users/nightire/Code/github.com/choice-open/automation-plugin-sdk-js/node_modules/zod/v4/core/schemas.js:709:30)
-      at value (/Users/nightire/Code/github.com/choice-open/automation-plugin-sdk-js/node_modules/zod/v4/core/util.js:33:31)
-      at <anonymous> (/Users/nightire/Code/github.com/choice-open/automation-plugin-sdk-js/node_modules/zod/v4/core/schemas.js:907:27)
-      at <anonymous> (/Users/nightire/Code/github.com/choice-open/automation-plugin-sdk-js/node_modules/zod/v4/core/schemas.js:106:38)
-      at <anonymous> (/Users/nightire/Code/github.com/choice-open/automation-plugin-sdk-js/node_modules/zod/v4/core/schemas.js:976:40)
-      at anonymous (file:///Users/nightire/Code/github.com/choice-open/automation-plugin-sdk-js/node_modules/zod/v4/core/doc.js:191:41)
-      at <anonymous> (/Users/nightire/Code/github.com/choice-open/automation-plugin-sdk-js/node_modules/zod/v4/core/schemas.js:922:23)
-```
+**问题描述：** `PropertyUIPropsSchema` 之前使用 `discriminatedUnion("type", ...)` 但组件 schema 实际使用 `component` 字段作为区分器。
 
-### PropertyUIPropsSchema 问题
+**解决方案：** `PropertyUIPropsSchema` 现在使用 `discriminatedUnion("component", ...)`，与实际的组件 schema 字段匹配。
 
-`PropertyUIPropsSchema` 使用 `discriminatedUnion("type", ...)` 但组件 schema 实际使用 `component` 字段作为区分器，导致该 schema 无法正常工作。相关测试已跳过。
+**状态：** ✅ 已修复，所有相关测试已启用。
 
 ## 运行测试
 
