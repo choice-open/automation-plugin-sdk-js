@@ -8,7 +8,7 @@ import type {
   ToolDefinition,
 } from "../types"
 import { I18nEntrySchema } from "./common"
-import { PropertiesSchema } from "./property"
+import { PropertiesScalarSchema, PropertiesSchema } from "./property"
 
 /**
  * 基础定义模式
@@ -24,15 +24,12 @@ export const BaseDefinitionSchema = z.object({
   display_name: I18nEntrySchema,
   description: I18nEntrySchema,
   icon: z.string(),
-  parameters: PropertiesSchema,
-  settings: PropertiesSchema.optional(),
 })
 {
   const _: IsEqual<z.infer<typeof BaseDefinitionSchema>, BaseDefinition> = true
 }
 
-export const PluginDefinitionSchema = z.object({
-  ...BaseDefinitionSchema.omit({ parameters: true, settings: true }).shape,
+export const PluginDefinitionSchema = BaseDefinitionSchema.extend({
   author: z.string(),
   email: z.email(),
   repo: z.httpUrl().optional(),
@@ -46,8 +43,8 @@ export const PluginDefinitionSchema = z.object({
   > = true
 }
 
-export const CredentialDefinitionSchema = z.object({
-  ...BaseDefinitionSchema.omit({ settings: true }).shape,
+export const CredentialDefinitionSchema = BaseDefinitionSchema.extend({
+  parameters: PropertiesScalarSchema,
 })
 {
   const _: IsEqual<z.infer<typeof CredentialDefinitionSchema>, CredentialDefinition> = true
@@ -60,7 +57,7 @@ export const DataSourceDefinitionSchema = z.object({
 export type DataSourceDefinition = z.infer<typeof DataSourceDefinitionSchema>
 
 export const ModelDefinitionSchema = z.object({
-  ...BaseDefinitionSchema.omit({ parameters: true, settings: true }).shape,
+  ...BaseDefinitionSchema.shape,
   name: z.string().refine(
     (value) => {
       const schema = z.templateLiteral([z.string(), z.literal("/"), z.string()])
@@ -147,6 +144,7 @@ export const ModelDefinitionSchema = z.object({
 
 export const ToolDefinitionSchema = z.object({
   ...BaseDefinitionSchema.shape,
+  parameters: PropertiesSchema,
   invoke: z.function({ input: z.array(z.unknown()), output: z.instanceof(Promise<unknown>) }),
 })
 {

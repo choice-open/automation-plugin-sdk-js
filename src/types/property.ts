@@ -316,12 +316,15 @@ export interface PropertyEncryptedString<TName extends string = string>
   ui?: PropertyUIEncryptedString
 }
 
-export type Property<TName extends string = string, TValue extends JsonValue = JsonValue> =
-  | PropertyArray<TName>
-  | PropertyObject<TName, string, TValue extends JsonObject ? TValue : JsonObject>
+export type PropertyScalar<TName extends string = string> =
   | PropertyString<TName>
   | PropertyBoolean<TName>
   | PropertyNumber<TName>
-  | PropertyCredentialId<TName>
   | PropertyEncryptedString<TName>
+
+export type Property<TName extends string = string, TValue extends JsonValue = JsonValue> =
+  | PropertyScalar<TName>
+  | PropertyCredentialId<TName>
+  | PropertyArray<TName>
+  | PropertyObject<TName, string, TValue extends JsonObject ? TValue : JsonObject>
   | PropertyDiscriminatedUnion<TName, string>
