@@ -49,26 +49,27 @@ export { createPlugin } from "./plugin"
 
 插件工厂函数，SDK 的核心 API。
 
-### createPlugin(options)
+ ### createPlugin(options)
 
-创建插件实例，返回：
+ 创建插件实例，返回：
 
-```typescript
-{
-  addCredential(credential: CredentialDefinition): void
-  addTool(tool: ToolDefinition): void
-  addModel(model: ModelDefinition): void
-  run(): void
-}
-```
+ ```typescript
+ {
+   addCredential(credential: CredentialDefinition): void
+   addTool(tool: ToolDefinition): void
+   addModel(model: ModelDefinition): void
+   run(): Promise<void>
+ }
+ ```
 
-### 工作流程
+ ### 工作流程
 
-1. 创建 Registry 注册表
-2. 创建 Transporter 传输层
-3. 提供 `add*` 方法注册功能
-4. `run()` 启动插件：
-   - 连接到 Hub Server
-   - 发送序列化的注册表
-   - 监听并响应工具调用请求
-   - 处理进程信号（SIGINT/SIGTERM）
+ 1. 创建 Registry 注册表
+ 2. 创建 Transporter 传输层
+ 3. 提供 `add*` 方法注册功能
+ 4. `run()` 启动插件：
+    - 异步连接到 Hub Server（使用插件名称作为频道名）
+    - 发送序列化的注册表（`register_plugin` 事件）
+    - 监听并响应工具调用请求（`invoke_tool` 事件）
+    - 根据请求返回响应（`invoke_tool_response` 事件）或错误（`invoke_tool_error` 事件）
+    - 处理进程信号（SIGINT/SIGTERM）

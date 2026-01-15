@@ -17,9 +17,11 @@ const EnvSchema = z.object({
     protocol: /wss?/,
     error: "HUB_SERVER_WS_URL must be a valid WebSocket URL.",
   }),
-  DEBUG_API_KEY: z.string({
-    error: "DEBUG_API_KEY must be a string.",
-  }).meta({ description: `The API key for the Hub Server`, }),
+  DEBUG_API_KEY: z
+    .string({
+      error: "DEBUG_API_KEY must be a string.",
+    })
+    .meta({ description: `The API key for the Hub Server` }),
   DEBUG: z
     .string()
     .optional()

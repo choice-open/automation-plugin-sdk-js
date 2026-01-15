@@ -13,6 +13,14 @@ const mockChannelJoin = mock(() => {
   const push = {
     receive: mock((status: string, callback: (response?: unknown) => void) => {
       joinReceiveCallbacks[status] = callback
+      // Auto-trigger 'ok' callback after a short delay to resolve the promise
+      if (status === "ok") {
+        setTimeout(() => {
+          if (joinReceiveCallbacks.ok) {
+            joinReceiveCallbacks.ok({ messages: [] })
+          }
+        }, 1)
+      }
       return push
     }),
   } as unknown as Push
@@ -105,6 +113,7 @@ describe("transporter", () => {
     // Reset environment
     Object.assign(process.env, originalEnv)
     ;(process.env as Record<string, string>).HUB_SERVER_WS_URL = "ws://localhost:4000/socket"
+    ;(process.env as Record<string, string>).DEBUG_API_KEY = "test-api-key"
     ;(process.env as Record<string, string>).DEBUG = "false"
 
     // Reset receive callbacks
@@ -219,21 +228,21 @@ describe("transporter", () => {
   })
 
   describe("connect", () => {
-    test("should create channel with correct topic and params", () => {
+    test("should create channel with correct topic and params", async () => {
       const transporter = createTransporter()
-      transporter.connect()
+      await transporter.connect("mirror:lobby")
       expect(mockSocketChannel).toHaveBeenCalledWith("mirror:lobby", {})
     })
 
-    test("should join the channel", () => {
+    test("should join the channel", async () => {
       const transporter = createTransporter()
-      transporter.connect()
+      await transporter.connect("mirror:lobby")
       expect(mockChannelJoin).toHaveBeenCalledTimes(1)
     })
 
-    test("should log success when channel join receives ok", () => {
+    test("should log success when channel join receives ok", async () => {
       const transporter = createTransporter()
-      transporter.connect()
+      await transporter.connect("mirror:lobby")
 
       // Simulate ok response
       if (joinReceiveCallbacks.ok) {
@@ -247,9 +256,9 @@ describe("transporter", () => {
       )
     })
 
-    test("should log error when channel join receives error", () => {
+    test("should log error when channel join receives error", async () => {
       const transporter = createTransporter()
-      transporter.connect()
+      await transporter.connect("mirror:lobby")
 
       // Simulate error response
       const errorResponse = { reason: "unauthorized" }
@@ -264,9 +273,9 @@ describe("transporter", () => {
       )
     })
 
-    test("should log timeout when channel join receives timeout", () => {
+    test("should log timeout when channel join receives timeout", async () => {
       const transporter = createTransporter()
-      transporter.connect()
+      await transporter.connect("mirror:lobby")
 
       // Simulate timeout response
       if (joinReceiveCallbacks.timeout) {
@@ -280,9 +289,9 @@ describe("transporter", () => {
       )
     })
 
-    test("should return channel and dispose function", () => {
+    test("should return channel and dispose function", async () => {
       const transporter = createTransporter()
-      const result = transporter.connect()
+      const result = await transporter.connect("mirror:lobby")
 
       expect(result).toHaveProperty("channel")
       expect(result).toHaveProperty("dispose")
@@ -292,17 +301,17 @@ describe("transporter", () => {
   })
 
   describe("dispose", () => {
-    test("should leave channel when dispose is called", () => {
+    test("should leave channel when dispose is called", async () => {
       const transporter = createTransporter()
-      const { dispose } = transporter.connect()
+      const { dispose } = await transporter.connect("mirror:lobby")
 
       dispose()
       expect(mockChannelLeave).toHaveBeenCalledTimes(1)
     })
 
-    test("should disconnect socket when dispose is called", () => {
+    test("should disconnect socket when dispose is called", async () => {
       const transporter = createTransporter()
-      const { dispose } = transporter.connect()
+      const { dispose } = await transporter.connect("mirror:lobby")
 
       const exitSpy = spyOn(process, "exit")
       exitSpy.mockImplementation(() => {
@@ -320,9 +329,9 @@ describe("transporter", () => {
       exitSpy.mockRestore()
     })
 
-    test("should call process.exit(0) when dispose is called", () => {
+    test("should call process.exit(0) when dispose is called", async () => {
       const transporter = createTransporter()
-      const { dispose } = transporter.connect()
+      const { dispose } = await transporter.connect("mirror:lobby")
 
       const exitSpy = spyOn(process, "exit")
       exitSpy.mockImplementation(() => {
@@ -336,12 +345,12 @@ describe("transporter", () => {
   })
 
   describe("integration", () => {
-    test("should handle complete workflow", () => {
+    test("should handle complete workflow", async () => {
       const onOpen = mock(() => {})
       const onClose = mock(() => {})
       const transporter = createTransporter({ onOpen, onClose })
 
-      const { channel, dispose } = transporter.connect()
+      const { channel, dispose } = await transporter.connect("mirror:lobby")
 
       expect(channel).toBeDefined()
       expect(mockSocketChannel).toHaveBeenCalledWith("mirror:lobby", {})

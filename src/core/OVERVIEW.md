@@ -75,17 +75,19 @@ interface TransporterOptions {
   onMessage?: (message: unknown) => void
 }
 
-function createTransporter(options?: TransporterOptions): {
-  connect: () => { channel: Channel; dispose: () => void }
-}
+ function createTransporter(options?: TransporterOptions): {
+   connect: (channelName: string) => Promise<{ channel: Channel; dispose: () => void }>
+ }
 ```
 
-### 通信流程
+ ### 通信流程
 
-1. 创建 Socket 连接到 `HUB_SERVER_WS_URL`
-2. 加入 `mirror:lobby` 频道
-3. 通过 `channel.push("shout", data)` 发送数据
-4. 监听 `channel.on("shout", callback)` 接收消息
+ 1. 创建 Socket 连接到 `HUB_SERVER_WS_URL`
+ 2. 加入动态频道名称（如 `debug_plugin:{plugin_name}`）
+ 3. 通过 `channel.push("register_plugin", data)` 发送插件注册信息
+ 4. 监听 `channel.on("invoke_tool", callback)` 接收工具调用请求
+ 5. 通过 `channel.push("invoke_tool_response", data)` 发送工具调用响应
+ 6. 通过 `channel.push("invoke_tool_error", data)` 发送工具调用错误
 
 ### 环境变量
 

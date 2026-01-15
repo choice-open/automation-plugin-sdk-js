@@ -8,6 +8,9 @@ const EnvSchema = z.object({
     protocol: /wss?/,
     error: "HUB_SERVER_WS_URL must be a valid WebSocket URL.",
   }),
+  DEBUG_API_KEY: z.string({
+    error: "DEBUG_API_KEY must be a string.",
+  }),
   DEBUG: z
     .string()
     .optional()
@@ -30,6 +33,7 @@ describe("env module", () => {
     test("should accept valid ws:// URL", () => {
       const result = EnvSchema.safeParse({
         HUB_SERVER_WS_URL: "ws://localhost:4000/socket",
+        DEBUG_API_KEY: "test-api-key",
       })
       expect(result.success).toBe(true)
       if (result.success) {
@@ -40,6 +44,7 @@ describe("env module", () => {
     test("should accept valid wss:// URL", () => {
       const result = EnvSchema.safeParse({
         HUB_SERVER_WS_URL: "wss://example.com/socket",
+        DEBUG_API_KEY: "test-api-key",
       })
       expect(result.success).toBe(true)
       if (result.success) {
@@ -50,6 +55,7 @@ describe("env module", () => {
     test("should reject non-WebSocket URL", () => {
       const result = EnvSchema.safeParse({
         HUB_SERVER_WS_URL: "https://example.com",
+        DEBUG_API_KEY: "test-api-key",
       })
       expect(result.success).toBe(false)
     })
@@ -57,12 +63,15 @@ describe("env module", () => {
     test("should reject invalid URL", () => {
       const result = EnvSchema.safeParse({
         HUB_SERVER_WS_URL: "not-a-url",
+        DEBUG_API_KEY: "test-api-key",
       })
       expect(result.success).toBe(false)
     })
 
     test("should reject missing HUB_SERVER_WS_URL", () => {
-      const result = EnvSchema.safeParse({})
+      const result = EnvSchema.safeParse({
+        DEBUG_API_KEY: "test-api-key",
+      })
       expect(result.success).toBe(false)
     })
   })
@@ -74,6 +83,7 @@ describe("env module", () => {
       try {
         const result = EnvSchema.safeParse({
           HUB_SERVER_WS_URL: "ws://localhost:4000/socket",
+          DEBUG_API_KEY: "test-api-key",
         })
         expect(result.success).toBe(true)
         if (result.success) {
@@ -90,6 +100,7 @@ describe("env module", () => {
       try {
         const result = EnvSchema.safeParse({
           HUB_SERVER_WS_URL: "ws://localhost:4000/socket",
+          DEBUG_API_KEY: "test-api-key",
         })
         expect(result.success).toBe(true)
         if (result.success) {
@@ -103,6 +114,7 @@ describe("env module", () => {
     test("should return true when DEBUG is 'true'", () => {
       const result = EnvSchema.safeParse({
         HUB_SERVER_WS_URL: "ws://localhost:4000/socket",
+        DEBUG_API_KEY: "test-api-key",
         DEBUG: "true",
       })
       expect(result.success).toBe(true)
@@ -114,6 +126,7 @@ describe("env module", () => {
     test("should return true when DEBUG is 'True' (case-insensitive)", () => {
       const result = EnvSchema.safeParse({
         HUB_SERVER_WS_URL: "ws://localhost:4000/socket",
+        DEBUG_API_KEY: "test-api-key",
         DEBUG: "True",
       })
       expect(result.success).toBe(true)
@@ -125,6 +138,7 @@ describe("env module", () => {
     test("should return true when DEBUG is 'TRUE' (case-insensitive)", () => {
       const result = EnvSchema.safeParse({
         HUB_SERVER_WS_URL: "ws://localhost:4000/socket",
+        DEBUG_API_KEY: "test-api-key",
         DEBUG: "TRUE",
       })
       expect(result.success).toBe(true)
@@ -136,6 +150,7 @@ describe("env module", () => {
     test("should return false when DEBUG is 'false'", () => {
       const result = EnvSchema.safeParse({
         HUB_SERVER_WS_URL: "ws://localhost:4000/socket",
+        DEBUG_API_KEY: "test-api-key",
         DEBUG: "false",
       })
       expect(result.success).toBe(true)
@@ -147,6 +162,7 @@ describe("env module", () => {
     test("should return false when DEBUG is any other value", () => {
       const result = EnvSchema.safeParse({
         HUB_SERVER_WS_URL: "ws://localhost:4000/socket",
+        DEBUG_API_KEY: "test-api-key",
         DEBUG: "anything else",
       })
       expect(result.success).toBe(true)
@@ -168,6 +184,7 @@ describe("env module", () => {
     test("should return parsed env when HUB_SERVER_WS_URL is valid ws:// URL", () => {
       ;(process.env as Record<string, string | undefined>).HUB_SERVER_WS_URL =
         "ws://localhost:4000/socket"
+      ;(process.env as Record<string, string | undefined>).DEBUG_API_KEY = "test-api-key"
 
       const { getEnv } = require("../src/env")
       const env = getEnv()
@@ -180,6 +197,7 @@ describe("env module", () => {
     test("should return parsed env when HUB_SERVER_WS_URL is valid wss:// URL", () => {
       ;(process.env as Record<string, string | undefined>).HUB_SERVER_WS_URL =
         "wss://example.com/socket"
+      ;(process.env as Record<string, string | undefined>).DEBUG_API_KEY = "test-api-key"
 
       const { getEnv } = require("../src/env")
       const env = getEnv()
@@ -191,6 +209,7 @@ describe("env module", () => {
     test("should cache parsed env on subsequent calls", () => {
       ;(process.env as Record<string, string | undefined>).HUB_SERVER_WS_URL =
         "ws://localhost:4000/socket"
+      ;(process.env as Record<string, string | undefined>).DEBUG_API_KEY = "test-api-key"
 
       const { getEnv } = require("../src/env")
       const env1 = getEnv()
@@ -228,8 +247,8 @@ describe("env module", () => {
     })
 
     test("should exit process when HUB_SERVER_WS_URL is invalid", () => {
-      ;(process.env as Record<string, string | undefined>).HUB_SERVER_WS_URL =
-        "https://example.com"
+      ;(process.env as Record<string, string | undefined>).HUB_SERVER_WS_URL = "https://example.com"
+      ;(process.env as Record<string, string | undefined>).DEBUG_API_KEY = "test-api-key"
 
       const exitMock = mock((code?: number) => {
         throw new Error(`process.exit(${code})`)
@@ -260,6 +279,7 @@ describe("env module", () => {
         const originalNodeEnv = process.env.NODE_ENV
         ;(process.env as Record<string, string | undefined>).HUB_SERVER_WS_URL =
           "ws://localhost:4000/socket"
+        ;(process.env as Record<string, string | undefined>).DEBUG_API_KEY = "test-api-key"
         delete (process.env as Record<string, string | undefined>).DEBUG
         process.env.NODE_ENV = "development"
 
@@ -276,6 +296,7 @@ describe("env module", () => {
         const originalNodeEnv = process.env.NODE_ENV
         ;(process.env as Record<string, string | undefined>).HUB_SERVER_WS_URL =
           "ws://localhost:4000/socket"
+        ;(process.env as Record<string, string | undefined>).DEBUG_API_KEY = "test-api-key"
         delete (process.env as Record<string, string | undefined>).DEBUG
         process.env.NODE_ENV = "production"
 
@@ -291,6 +312,7 @@ describe("env module", () => {
       test("should return true when DEBUG is 'true'", () => {
         ;(process.env as Record<string, string | undefined>).HUB_SERVER_WS_URL =
           "ws://localhost:4000/socket"
+        ;(process.env as Record<string, string | undefined>).DEBUG_API_KEY = "test-api-key"
         ;(process.env as Record<string, string | undefined>).DEBUG = "true"
 
         const { getEnv } = require("../src/env")
@@ -301,6 +323,7 @@ describe("env module", () => {
       test("should return true when DEBUG is 'True' (case-insensitive)", () => {
         ;(process.env as Record<string, string | undefined>).HUB_SERVER_WS_URL =
           "ws://localhost:4000/socket"
+        ;(process.env as Record<string, string | undefined>).DEBUG_API_KEY = "test-api-key"
         ;(process.env as Record<string, string | undefined>).DEBUG = "True"
 
         const { getEnv } = require("../src/env")
@@ -311,6 +334,7 @@ describe("env module", () => {
       test("should return false when DEBUG is 'false'", () => {
         ;(process.env as Record<string, string | undefined>).HUB_SERVER_WS_URL =
           "ws://localhost:4000/socket"
+        ;(process.env as Record<string, string | undefined>).DEBUG_API_KEY = "test-api-key"
         ;(process.env as Record<string, string | undefined>).DEBUG = "false"
 
         const { getEnv } = require("../src/env")
@@ -321,6 +345,7 @@ describe("env module", () => {
       test("should return false when DEBUG is any other value", () => {
         ;(process.env as Record<string, string | undefined>).HUB_SERVER_WS_URL =
           "ws://localhost:4000/socket"
+        ;(process.env as Record<string, string | undefined>).DEBUG_API_KEY = "test-api-key"
         ;(process.env as Record<string, string | undefined>).DEBUG = "anything"
 
         const { getEnv } = require("../src/env")

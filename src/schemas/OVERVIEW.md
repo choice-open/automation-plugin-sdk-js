@@ -55,9 +55,9 @@ AI 模型定义：
 - `override_parameters`: 参数默认值覆盖
 - `unsupported_parameters`: 不支持的参数声明
 
-### ToolDefinitionSchema
+ ### ToolDefinitionSchema
 
-工具定义：包含 `invoke` 异步函数
+ 工具定义：包含 `invoke` 异步函数，接受 `{ args: any }` 参数并返回 JSON 序列化值
 
 ## property.ts
 

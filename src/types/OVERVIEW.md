@@ -33,17 +33,22 @@ interface I18nText {
 | `CredentialDefinition` | 凭证定义                   |
 | `DataSourceDefinition` | 数据源定义                 |
 | `ModelDefinition`      | AI 模型定义                |
-| `ToolDefinition`       | 工具定义（含 invoke 函数） |
+ | `ToolDefinition`       | 工具定义（含 invoke 函数，接受 { args: any } 参数并返回 Promise<JsonValue>） |
 | `Feature`              | 所有功能类型的联合类型     |
 
-### BaseDefinition 属性
+ ### BaseDefinition 属性
 
-- `name`: 功能名称（符合命名规范）
-- `display_name`: 显示名称（I18n）
-- `description`: 描述（I18n）
-- `icon`: 图标（Emoji 或 URL）
-- `parameters`: 参数列表
-- `settings`: 可选设置列表
+ - `name`: 功能名称（符合命名规范）
+ - `display_name`: 显示名称（I18n）
+ - `description`: 描述（I18n）
+ - `icon`: 图标（Emoji 或 URL）
+ - `parameters`: 参数列表
+ - `settings`: 可选设置列表
+
+ ### ToolDefinition 特殊属性
+
+ - `invoke`: 异步函数，接受 `{ args: any }` 参数并返回 Promise<JsonValue>
+   - 开发者需确保返回值为 JSON 可序列化格式
 
 ## property.ts
 

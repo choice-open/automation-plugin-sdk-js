@@ -1,7 +1,7 @@
-# Automation Plugin SDK - 架构文档
+ # Automation Plugin SDK - 架构文档
 
-> **生成时间：** 2026-01-13 14:30
-> **版本：** 0.0.0
+ > **生成时间：** 2026-01-15 15:30
+ > **版本：** 0.0.0
 
 ## 项目概述
 
@@ -278,51 +278,64 @@ createPlugin(options: PluginDefinition) => {
 
 **职责：** 功能注册和管理
 
-**数据结构：**
-```typescript
-interface RegistryStore {
-  plugin: PluginRegistry
-  credential: Map<string, CredentialDefinition>
-  data_source: Map<string, DataSourceDefinition>
-  model: Map<string, ModelDefinition>
-  tool: Map<string, ToolDefinition>
-}
-```
+ **数据结构：**
+ ```typescript
+ interface RegistryStore {
+   plugin: PluginRegistry
+   credential: Map<string, CredentialDefinition>
+   data_source: Map<string, DataSourceDefinition>
+   model: Map<string, ModelDefinition>
+   tool: Map<string, ToolDefinition>
+ }
+ 
+ export interface Registry {
+   /**
+    * The plugin metadata and definitions, excluding transporter options.
+    */
+   plugin: PluginRegistry
+   // ... 其他方法
+ }
+ ```
 
-**核心方法：**
-- `register(type, feature)` - 按类型注册功能
-- `resolve(type, name)` - 按类型和名称解析功能
-- `serialize()` - 序列化为可传输对象
+ **核心方法：**
+ - `register(type, feature)` - 按类型注册功能
+ - `resolve(type, name)` - 按类型和名称解析功能
+ - `serialize()` - 序列化为可传输对象
 
-**特点：**
-- 类型安全的重载方法
-- 使用 Map 提高查找效率
-- 自动序列化时过滤函数属性
+ **特点：**
+ - 类型安全的重载方法
+ - 使用 Map 提高查找效率
+ - 自动序列化时过滤函数属性
+ - 新增 plugin 属性直接暴露插件元数据
 
 ### 3. Transporter (`core/transporter.ts`)
 
 **职责：** WebSocket 通信管理
 
-**架构：**
-```
-Socket (Phoenix)
-  └── Channel ("mirror:lobby")
-      ├── push("shout", data)      # 发送消息
-      └── on("shout", handler)     # 接收消息
-```
+ **架构：**
+ ```
+ Socket (Phoenix)
+   └── Channel (dynamic name, e.g., "debug_plugin:{plugin_name}")
+       ├── push("register_plugin", data)  # 注册插件
+       ├── push("invoke_tool_response", data)  # 工具调用响应
+       ├── push("invoke_tool_error", data)     # 工具调用错误
+       └── on("invoke_tool", handler)     # 接收工具调用请求
+ ```
 
-**核心流程：**
-1. 创建 Socket 连接到 `HUB_SERVER_WS_URL`
-2. 加入 `mirror:lobby` 频道
-3. 发送序列化的插件信息
-4. 监听工具调用请求并执行
-5. 返回执行结果
+ **核心流程：**
+ 1. 创建 Socket 连接到 `HUB_SERVER_WS_URL`
+ 2. 加入动态频道名称（如 `debug_plugin:{plugin_name}`）
+ 3. 发送序列化的插件信息（`register_plugin` 事件）
+ 4. 监听工具调用请求（`invoke_tool` 事件）
+ 5. 执行工具并发送响应或错误（`invoke_tool_response` / `invoke_tool_error`）
+ 6. 处理异常情况（Promise-based 异步处理）
 
-**特点：**
-- 心跳保活（默认 30 秒）
-- Debug 日志（彩色输出）
-- 事件回调支持
-- 优雅断开连接
+ **特点：**
+ - 心跳保活（默认 30 秒）
+ - 增强的 Debug 日志（支持对象消息格式）
+ - Promise-based 异步连接处理
+ - 事件回调支持
+ - 优雅断开连接
 
 ### 4. Type System (`types/`)
 
@@ -394,36 +407,54 @@ ws(s)://hub-server/socket
       └── on("shout", callback)
 ```
 
-### 消息格式
+ ### 消息格式
 
-**插件注册（Plugin -> Server）：**
-```json
-{
-  "plugin": {
-    "name": "my-plugin",
-    "display_name": { "en_US": "My Plugin" },
-    "description": { "en_US": "..." },
-    "icon": "🔌",
-    "author": "...",
-    "email": "...",
-    "version": "1.0.0",
-    "locales": ["en_US"],
-    "credentials": [...],
-    "data_sources": [...],
-    "models": [...],
-    "tools": [...]
-  }
-}
-```
+ **插件注册（Plugin -> Server）：**
+ ```json
+ {
+   "plugin": {
+     "name": "my-plugin",
+     "display_name": { "en_US": "My Plugin" },
+     "description": { "en_US": "..." },
+     "icon": "🔌",
+     "author": "...",
+     "email": "...",
+     "version": "1.0.0",
+     "locales": ["en_US"],
+     "credentials": [...],
+     "data_sources": [...],
+     "models": [...],
+     "tools": [...]
+   }
+ }
+ ```
 
-**工具调用（Server -> Plugin）：**
-```json
-{
-  "providerName": "my-plugin",
-  "featureName": "my-tool",
-  "args": [...]
-}
-```
+ **工具调用（Server -> Plugin）：**
+ ```json
+ {
+   "request_id": "unique-request-id",
+   "plugin_name": "my-plugin",
+   "tool_name": "my-tool",
+   "parameters": { /* 参数对象 */ }
+ }
+ ```
+
+ **工具调用响应（Plugin -> Server）：**
+ ```json
+ {
+   "request_id": "unique-request-id",
+   "data": { /* 响应数据 */ }
+ }
+ ```
+
+ **工具调用错误（Plugin -> Server）：**
+ ```json
+ {
+   "request_id": "unique-request-id",
+   "message": "Error message",
+   // ... 其他错误信息
+ }
+ ```
 
 ## 设计模式
 

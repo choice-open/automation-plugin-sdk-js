@@ -36,13 +36,13 @@ describe("BaseDefinitionSchema", () => {
     })
 
     test("should accept name with 64 characters", () => {
-      const name = "a" + "b".repeat(62) + "c"
+      const name = `a${"b".repeat(62)}c`
       const result = BaseDefinitionSchema.safeParse({ ...validBase, name })
       expect(result.success).toBe(true)
     })
 
     test("should reject name with more than 65 characters", () => {
-      const name = "a" + "b".repeat(64) + "c"
+      const name = `a${"b".repeat(64)}c`
       const result = BaseDefinitionSchema.safeParse({ ...validBase, name })
       expect(result.success).toBe(false)
     })
@@ -283,41 +283,47 @@ describe("ModelDefinitionSchema", () => {
   }
 
   describe("name format validation", () => {
-    test("should reject name without slash", () => {
+    test("should accept name with basic format", () => {
       const result = ModelDefinitionSchema.safeParse({ ...validModel, name: "model-name" })
+      expect(result.success).toBe(true)
+    })
+
+    test("should accept name with provider/model format", () => {
+      const result = ModelDefinitionSchema.safeParse({ ...validModel, name: "provider/model-name" })
+      expect(result.success).toBe(true)
+    })
+
+    test("should accept name with underscores and hyphens", () => {
+      const result = ModelDefinitionSchema.safeParse({ ...validModel, name: "provider_model-name" })
+      expect(result.success).toBe(true)
+    })
+
+    test("should accept name with forward slashes in middle", () => {
+      const result = ModelDefinitionSchema.safeParse({
+        ...validModel,
+        name: "provider/model-name/path",
+      })
+      expect(result.success).toBe(true)
+    })
+
+    test("should reject name that does not match format", () => {
+      const result = ModelDefinitionSchema.safeParse({ ...validModel, name: "invalid##name" })
       expect(result.success).toBe(false)
     })
 
-    // NOTE: The templateLiteral schema with z.string() accepts empty strings,
-    // so "/" matches (empty/empty), "/model" matches (empty/model), "provider/" matches (provider/empty)
-    // This is current implementation behavior, not necessarily ideal
-
-    test("should accept name with only slash (matches empty/empty)", () => {
-      const result = ModelDefinitionSchema.safeParse({ ...validModel, name: "/" })
-      expect(result.success).toBe(true)
+    test("should reject name with consecutive special characters", () => {
+      const result = ModelDefinitionSchema.safeParse({ ...validModel, name: "provider/__model" })
+      expect(result.success).toBe(false)
     })
 
-    test("should accept name without provider (matches empty/model)", () => {
-      const result = ModelDefinitionSchema.safeParse({ ...validModel, name: "/model-name" })
-      expect(result.success).toBe(true)
+    test("should reject name starting with number", () => {
+      const result = ModelDefinitionSchema.safeParse({ ...validModel, name: "1provider/model" })
+      expect(result.success).toBe(false)
     })
 
-    test("should accept name without model name (matches provider/empty)", () => {
-      const result = ModelDefinitionSchema.safeParse({ ...validModel, name: "provider/" })
-      expect(result.success).toBe(true)
-    })
-
-    test("should accept valid provider/model format", () => {
-      const result = ModelDefinitionSchema.safeParse({ ...validModel, name: "openai/gpt-4" })
-      expect(result.success).toBe(true)
-    })
-
-    test("should accept name with multiple slashes", () => {
-      const result = ModelDefinitionSchema.safeParse({
-        ...validModel,
-        name: "provider/category/model",
-      })
-      expect(result.success).toBe(true)
+    test("should reject name ending with special character", () => {
+      const result = ModelDefinitionSchema.safeParse({ ...validModel, name: "provider/model-" })
+      expect(result.success).toBe(false)
     })
   })
 
