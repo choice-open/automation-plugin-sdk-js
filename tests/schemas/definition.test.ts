@@ -208,7 +208,7 @@ describe("PluginDefinitionSchema", () => {
     })
 
     test("should accept undefined repo (optional)", () => {
-      const { repo: _, ...pluginWithoutRepo } = validPlugin
+      const { ...pluginWithoutRepo } = validPlugin
       const result = PluginDefinitionSchema.safeParse(pluginWithoutRepo)
       expect(result.success).toBe(true)
     })
