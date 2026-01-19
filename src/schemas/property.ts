@@ -218,7 +218,6 @@ const PropertyDiscriminatedUnionSchema = PropertyBaseSchema.extend({
         if (!("constant" in discriminatorProperty)) return false
         if (
           typeof discriminatorProperty.constant !== "string" &&
-          typeof discriminatorProperty.constant !== "number" &&
           typeof discriminatorProperty.constant !== "boolean"
         ) {
           return false
@@ -228,7 +227,7 @@ const PropertyDiscriminatedUnionSchema = PropertyBaseSchema.extend({
     },
     {
       error:
-        "Each item in anyOf must contain the discriminator field with constant string/number/boolean value",
+        "Each item in anyOf must contain the discriminator field with constant string/boolean value",
       abort: true,
     },
   )
