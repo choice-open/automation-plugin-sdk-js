@@ -15,6 +15,7 @@ const ToolInvokeMessage = z.object({
   plugin_name: z.string(),
   tool_name: z.string(),
   parameters: z.json(),
+  credentials: z.json(),
 })
 
 type CredentialDefinition = z.infer<typeof CredentialDefinitionSchema>
@@ -32,7 +33,7 @@ export async function createPlugin<Locales extends string[]>(
 ) {
   // Validate organization ID before creating registry
   const env = getEnv()
-  if (!env.ORGANIZATION_ID) {
+  if (!env.HUB_ORGANIZATION_ID) {
     console.error("DEBUG API Key is invalid. Please run `atomemo plugin refresh-key`")
     process.exit(1)
   }
@@ -43,7 +44,7 @@ export async function createPlugin<Locales extends string[]>(
     const sessionData = await getSession()
     user = sessionData.user
 
-    if (user.inherentOrganizationId !== env.ORGANIZATION_ID) {
+    if (user.inherentOrganizationId !== env.HUB_ORGANIZATION_ID) {
       console.info(
         "Atomemo does not currently support developing plugins for other organizations. Please wait for official support.",
       )
@@ -59,6 +60,7 @@ export async function createPlugin<Locales extends string[]>(
   const pluginDefinition = Object.assign(plugin, {
     author: user.name,
     email: user.email,
+    organization_id: env.HUB_ORGANIZATION_ID,
     version,
   })
 
@@ -106,7 +108,9 @@ export async function createPlugin<Locales extends string[]>(
     run: async () => {
       const { channel, dispose } = await transporter.connect(`debug_plugin:${registry.plugin.name}`)
 
-      channel.push("register_plugin", registry.serialize().plugin)
+      if (env.HUB_MODE === "debug") {
+        channel.push("register_plugin", registry.serialize().plugin)
+      }
 
       channel.on("invoke_tool", async (message) => {
         const request_id = message.request_id
@@ -114,7 +118,8 @@ export async function createPlugin<Locales extends string[]>(
         try {
           const event = ToolInvokeMessage.parse(message)
           const tool = registry.resolve("tool", event.tool_name)
-          const data = await tool.invoke({ args: event.parameters })
+          const { credentials, parameters } = event
+          const data = await tool.invoke({ args: { credentials, parameters } })
           channel.push("invoke_tool_response", { request_id, data })
         } catch (error) {
           if (error instanceof Error) {
