@@ -109,7 +109,9 @@ export async function createPlugin<Locales extends string[]>(
       const { channel, dispose } = await transporter.connect(`debug_plugin:${registry.plugin.name}`)
 
       if (env.HUB_MODE === "debug") {
-        channel.push("register_plugin", registry.serialize().plugin)
+        const definition = registry.serialize().plugin
+        channel.push("register_plugin", definition)
+        await Bun.write("definition.json", JSON.stringify(definition, null, 2))
       }
 
       channel.on("invoke_tool", async (message) => {
