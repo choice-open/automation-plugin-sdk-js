@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.1] - 2026-02-02
+
+### Changed
+- Renamed environment variables for consistency:
+  - `HUB_SERVER_WS_URL` → `HUB_WS_URL`
+  - `DEBUG_API_KEY` → `HUB_DEBUG_API_KEY`
+  - `ORGANIZATION_ID` → `HUB_ORGANIZATION_ID`
+- Added `HUB_MODE` environment variable (`"debug"` | `"release"`, defaults to `"debug"`)
+- Updated transporter URL construction to include mode in socket path
+- Plugin definition now includes `organization_id` field
+- Tool invocation now receives `{ credentials, parameters }` instead of just `parameters`
+- Plugin registration is now conditional based on `HUB_MODE`
+
 ## [0.1.0] - 2026-01-20
 
 ### Changed
@@ -49,5 +62,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `pino` from `^10.2.0` to `^10.2.1`
 - Updated `es-toolkit` from `^1.43.0` to `^1.44.0`
 
-[Unreleased]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/choice-open/atomemo-plugin-sdk-js/releases/tag/v0.1.0
