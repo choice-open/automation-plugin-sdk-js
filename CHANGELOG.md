@@ -8,7 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.4] - 2026-02-05
 
 ### Changed
-- Removed `plugin_name` from tool invocation payload parsing
+- Made `HUB_DEBUG_API_KEY` optional in non-production environments
+- Error messages now display debug information only in non-production environments
+
+### Added
+- Added logging for `NODE_ENV` in the plugin creation process
 
 ## [0.1.3] - 2026-02-02
 
