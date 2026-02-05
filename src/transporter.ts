@@ -33,7 +33,7 @@ export function createTransporter(options: TransporterOptions = {}) {
       const inspection = data ? Bun.inspect(data, { colors: true }) : ""
       console.debug(`${timestamp} ${coloredKind} ${coloredMessage}`, inspection)
     },
-    params: { api_key: env.HUB_DEBUG_API_KEY },
+    params: Bun.env.NODE_ENV !== "production" ? { api_key: env.HUB_DEBUG_API_KEY } : undefined,
   })
 
   socket.onOpen(() => {
@@ -47,8 +47,12 @@ export function createTransporter(options: TransporterOptions = {}) {
   socket.onError((error, transport, establishedConnections) => {
     if (error instanceof ErrorEvent && error.message.includes("failed: Expected 101 status code")) {
       console.error("Error: Can't connect to the Plugin Hub server.\n")
-      console.error("This is usually because the Debug API Key is missing or has expired.\n")
-      console.error("Run `atomemo plugin refresh-key` to get a new key.\n")
+
+      if (Bun.env.NODE_ENV !== "production") {
+        console.error("This is usually because the Debug API Key is missing or has expired.\n")
+        console.error("Run `atomemo plugin refresh-key` to get a new key.\n")
+      }
+      
       process.exit(1)
     }
     options.onError?.(error, transport, establishedConnections)

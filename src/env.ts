@@ -28,6 +28,11 @@ const EnvSchema = z.object({
     .string({
       error: "HUB_DEBUG_API_KEY must be a string.",
     })
+    .optional()
+    .refine((value) => {
+      if (Bun.env.NODE_ENV === "production") return true
+      return isNil(value)
+    })
     .meta({ description: `The API key for the Hub Server` }),
   HUB_ORGANIZATION_ID: z
     .string()
