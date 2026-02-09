@@ -52,7 +52,7 @@ export function createTransporter(options: TransporterOptions = {}) {
         console.error("This is usually because the Debug API Key is missing or has expired.\n")
         console.error("Run `atomemo plugin refresh-key` to get a new key.\n")
       }
-      
+
       process.exit(1)
     }
     options.onError?.(error, transport, establishedConnections)

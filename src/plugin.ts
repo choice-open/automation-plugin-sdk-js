@@ -10,11 +10,18 @@ import { getSession } from "./oneauth"
 import { createRegistry } from "./registry"
 import { createTransporter, type TransporterOptions } from "./transporter"
 
+const CredentialAuthenticateMessage = z.object({
+  request_id: z.string(),
+  credential_name: z.string(),
+  parameters: z.looseObject({ extra: z.record(z.string(), z.any()) }),
+  credentials: z.record(z.string(), z.string()),
+})
+
 const ToolInvokeMessage = z.object({
   request_id: z.string(),
   tool_name: z.string(),
-  parameters: z.json(),
-  credentials: z.json(),
+  parameters: z.record(z.string(), z.any()),
+  credentials: z.record(z.string(), z.string()).optional(),
 })
 
 type CredentialDefinition = z.infer<typeof CredentialDefinitionSchema>
@@ -125,6 +132,27 @@ export async function createPlugin<Locales extends string[]>(
         channel.push("register_plugin", definition)
         await Bun.write("definition.json", JSON.stringify(definition, null, 2))
       }
+
+      channel.on("credential_authenticate", async (message) => {
+        const request_id = message.request_id
+
+        try {
+          const event = CredentialAuthenticateMessage.parse(message)
+          const credential = registry.resolve("credential", event.credential_name)
+          const { credentials, parameters } = event
+          const data = await credential.authenticate({ args: { credentials, parameters } })
+          channel.push("credential_authenticate_response", { request_id, data })
+        } catch (error) {
+          if (error instanceof Error) {
+            channel.push("credential_authenticate_error", { request_id, ...error })
+          } else {
+            channel.push("credential_authenticate_error", {
+              request_id,
+              message: "Unexpected Error",
+            })
+          }
+        }
+      })
 
       channel.on("invoke_tool", async (message) => {
         const request_id = message.request_id
