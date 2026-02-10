@@ -5,6 +5,7 @@
     "moduleDetection": "force",
     "module": "preserve",
     "moduleResolution": "bundler",
+    "customConditions": ["development"],
     "resolveJsonModule": true,
     "types": ["bun"],
     "strict": true,
