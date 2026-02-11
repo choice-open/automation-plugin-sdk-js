@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.4] - 2026-02-11
+
+### Fixed
+- Updated event response names for credential authentication:
+  - Renamed `credential_authenticate_response` to `credential_auth_spec_response`
+  - Renamed `credential_authenticate_error` to `credential_auth_spec_error`
+
+## [0.2.3] - 2026-02-11
+
+### Fixed
+- Renamed event listener for credential authentication from `credential_authenticate` to `credential_auth_spec`
+
 ## [0.2.2] - 2026-02-11
 
 ### Changed
@@ -152,7 +164,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `pino` from `^10.2.0` to `^10.2.1`
 - Updated `es-toolkit` from `^1.43.0` to `^1.44.0`
 
-[Unreleased]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.2.2...HEAD
+[Unreleased]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.2.4...HEAD
+[0.2.4]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.2.3...v0.2.4
+[0.2.3]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.1.8...v0.2.0
