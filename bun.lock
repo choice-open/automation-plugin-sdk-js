@@ -59,7 +59,7 @@
 
     "@biomejs/cli-win32-x64": ["@biomejs/cli-win32-x64@2.3.14", "", { "os": "win32", "cpu": "x64" }, "sha512-oizCjdyQ3WJEswpb3Chdngeat56rIdSYK12JI3iI11Mt5T5EXcZ7WLuowzEaFPNJ3zmOQFliMN8QY1Pi+qsfdQ=="],
 
-    "@choiceopen/atomemo-plugin-schema": ["@choiceopen/atomemo-plugin-schema@0.2.7", "", { "dependencies": { "type-fest": "^5.4.4" }, "peerDependencies": { "zod": "^4" } }, "sha512-PAoIoa2Je88zSbVeocNTDeVx4Y2zlBazDbOmv9qF8lXIJbTN7yU3mZ775vwKUYBis9QG6ilcXNNxfDXlaSaKwA=="],
+    "@choiceopen/atomemo-plugin-schema": ["@choiceopen/atomemo-plugin-schema@0.2.8", "", { "dependencies": { "type-fest": "^5.4.4" }, "peerDependencies": { "zod": "^4" } }, "sha512-uRKZH4vS7al3HcLCFBDMo8uSb4HfR0Sebl8ellnAmBMa8uWvtChxrL+o0gUYXZJkUU7JEgJXjnJ9pYarmDzOZw=="],
 
     "@emnapi/core": ["@emnapi/core@1.8.1", "", { "dependencies": { "@emnapi/wasi-threads": "1.1.0", "tslib": "^2.4.0" } }, "sha512-AvT9QFpxK0Zd8J0jopedNm+w/2fIzvtPKPjqyw9jwvBaReTTqPBk9Hixaz7KbjimP+QNz605/XnjFcDAL2pqBg=="],
 
