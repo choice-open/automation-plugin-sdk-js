@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.12] - 2026-02-14
+
+### Changed
+- Updated `@choiceopen/atomemo-plugin-schema` from ^0.2.14 to ^0.2.15
+
 ## [0.2.11] - 2026-02-14
 
 ### Changed
@@ -202,7 +207,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `pino` from `^10.2.0` to `^10.2.1`
 - Updated `es-toolkit` from `^1.43.0` to `^1.44.0`
 
-[Unreleased]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.2.11...HEAD
+[Unreleased]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.2.12...HEAD
+[0.2.12]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.2.11...v0.2.12
 [0.2.11]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.2.10...v0.2.11
 [0.2.10]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.2.9...v0.2.10
 [0.2.9]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.2.8...v0.2.9
