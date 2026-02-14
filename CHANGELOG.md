@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.13] - 2026-02-14
+
+### Changed
+- Updated dev dependencies:
+  - `@biomejs/biome` from ^2.3.14 to ^2.3.15
+  - `dotenv` from ^17.2.4 to ^17.3.1
+- Updated `SessionSchema` to make `id` required and `ipAddress`/`userAgent` nullish
+- Updated `UserSchema`:
+  - Made `id` and `role` required fields
+  - Made `image` nullish instead of optional
+  - Added `referralCode` as required field
+  - Added `referredBy` as optional field
+  - Changed `metadata` to use `z.record(z.string(), z.any())`
+
 ## [0.2.12] - 2026-02-14
 
 ### Changed
@@ -207,7 +221,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `pino` from `^10.2.0` to `^10.2.1`
 - Updated `es-toolkit` from `^1.43.0` to `^1.44.0`
 
-[Unreleased]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.2.12...HEAD
+[Unreleased]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.2.13...HEAD
+[0.2.13]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.2.12...v0.2.13
 [0.2.12]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.2.11...v0.2.12
 [0.2.11]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.2.10...v0.2.11
 [0.2.10]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.2.9...v0.2.10
